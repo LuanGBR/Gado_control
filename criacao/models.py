@@ -1,11 +1,12 @@
 from django.db import models
+from django.db.models.base import Model
 from django.db.models.fields import AutoField, BooleanField, DateField, FloatField, IntegerField, TextField
 from django.db.models.fields.related import ForeignKey, OneToOneField
 from django.conf import settings
 # Create your models here.
 
 
-class UserProfile(models.Model):
+class userprofile(models.Model):
   user = models.OneToOneField(settings.AUTH_USER_MODEL,
                             on_delete=models.CASCADE,
                             related_name="perfil")
@@ -43,8 +44,8 @@ class matriz(models.Model):
     nascimento = DateField(null=True)
     observacoes = TextField(max_length=280,blank=True,null=True)
     esta_vivo = BooleanField(default=True)
-    morte = DateField(null=True)
-    causa_mortis = TextField(max_length=30,null=True)
+    morte = DateField(blank=True,null=True)
+    causa_mortis = TextField(blank=True,max_length=30,null=True)
 
 class cria(models.Model):
     REQUIRED_FIELDS = ['cabecagado','nascimento', 'matriz']
@@ -54,6 +55,7 @@ class cria(models.Model):
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
     matriz = models.ForeignKey(matriz, on_delete=models.CASCADE)
     nascimento = DateField()
+    sexo = BooleanField() #True para macho, False para femea
     observacoes = TextField(max_length=280,blank=True,null=True)
     esta_vivo = BooleanField(default=True)
     morte = DateField(null=True)
@@ -75,6 +77,24 @@ class vacinas(models.Model):
     leptospirose = BooleanField(default=False)
     raiva = BooleanField(default=False)
     ibr_bvd = BooleanField(default=False)
+
+
+
+class transacao(models.Model):
+    id = AutoField(primary_key=True)
+    tipo = BooleanField() #True para Venda, False para compra
+    valor = FloatField()
+    envolvido = TextField(max_length=32)
+    data = DateField()
+
+class cabeca_transacionada(models.Model):
+    id = AutoField(primary_key=True)
+    transacao = ForeignKey(transacao,on_delete=models.CASCADE)
+    cabecagado = ForeignKey(cabecagado,on_delete=models.CASCADE)
+    
+    
+
+
 
 
 
