@@ -15,6 +15,10 @@ class cabecagado(models.Model):
     id = AutoField(primary_key=True)
     author = ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
 
+class brinco(models.Model):
+    id = AutoField(primary_key=True)
+    cor_nome = TextField(max_length=16)
+    cor_HEX = TextField(max_length=6)
 
 class boi(models.Model):
     REQUIRED_FIELDS = ['cabecagado']
@@ -23,6 +27,8 @@ class boi(models.Model):
     nascimento = DateField(null=True)
     observacoes = TextField(max_length=280,blank=True,null=True)
     esta_vivo = BooleanField(default=True)
+    n_etiqueta = IntegerField(null=True)
+    brinco = ForeignKey(brinco,on_delete=models.CASCADE)
     morte = DateField(null=True)
     causa_mortis = TextField(max_length=30,null=True)
 
@@ -31,6 +37,8 @@ class matriz(models.Model):
     REQUIRED_FIELDS = ['cabecagado']
     id = AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
+    n_etiqueta = IntegerField()
+    brinco = ForeignKey(brinco,on_delete=models.CASCADE)
     gestacoes = IntegerField(default=0)
     nascimento = DateField(null=True)
     observacoes = TextField(max_length=280,blank=True,null=True)
@@ -41,6 +49,8 @@ class matriz(models.Model):
 class cria(models.Model):
     REQUIRED_FIELDS = ['cabecagado','nascimento', 'matriz']
     id = AutoField(primary_key=True)
+    n_etiqueta = IntegerField()
+    brinco = ForeignKey(brinco,on_delete=models.CASCADE)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
     matriz = models.ForeignKey(matriz, on_delete=models.CASCADE)
     nascimento = DateField()
@@ -65,6 +75,7 @@ class vacinas(models.Model):
     leptospirose = BooleanField(default=False)
     raiva = BooleanField(default=False)
     ibr_bvd = BooleanField(default=False)
+
 
 
 
