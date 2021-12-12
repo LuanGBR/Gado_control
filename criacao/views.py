@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
 
-from criacao.models import cabeca_transacionada, cria, matriz, transacao,brinco
+from criacao.models import cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco
 
 import plotly.graph_objects as go
 import datetime 
@@ -35,10 +35,10 @@ def HomeView(request):
         transacoes = transacao.objects.order_by("data")[:5]
         descricoes = []
         for t in transacoes:
-            n = cabeca_transacionada.objects.filter(transacao=t).count()
+            n = cabeca_transacionada.objects.filter(cabecagado__transacao=t).count()
             descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
-        context = {"n_matrizes": matriz.objects.filter(esta_vivo=True).count(),
-                   "n_crias": cria.objects.filter(esta_vivo=True).count(),
+        context = {"n_matrizes": matriz.objects.filter(cabecagado__esta_vivo=True).count(),
+                   "n_crias": cria.objects.filter(cabecagado__esta_vivo=True).count(),
                    "transacoes_descricoes":  zip(transacoes,descricoes)
                    }
         meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
@@ -53,8 +53,8 @@ def HomeView(request):
         while i<6:
             data_lim = hoje - datetime.timedelta(days=30*(7-i))
             x.append(meses[(mes_atual+i)%12])
-            nf = (cria.objects.filter(esta_vivo=True)&cria.objects.filter(nascimento__lt=data_lim)&cria.objects.filter(sexo=False)).count() - acum_f
-            nm = (cria.objects.filter(esta_vivo=True)&cria.objects.filter(nascimento__lt=data_lim)&cria.objects.filter(sexo=True)).count() - acum_m
+            nf = (cria.objects.filter(cabecagado__esta_vivo=True)&cria.objects.filter(cabecagado__nascimento__lt=data_lim)&cria.objects.filter(cabecagado__sexo=cabecagado.FEMALE)).count() - acum_f
+            nm = (cria.objects.filter(cabecagado__esta_vivo=True)&cria.objects.filter(cabecagado__nascimento__lt=data_lim)&cria.objects.filter(cabecagado__sexo=cabecagado.MALE)).count() - acum_m
             acum_f += nf
             acum_m += nm
             yf.append(nf)
