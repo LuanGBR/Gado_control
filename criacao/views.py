@@ -86,12 +86,13 @@ def CabecaListView(request):
             if request.GET.get("boi_checked"):
                 boi_checked = True
             if request.GET.get("matriz_checked"):
-                print(85)
                 matriz_checked = True
             if not request.GET.get("cria_checked"):
                 cria_checked = False
-            brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
-            brinco_selected=brinco_selected[0]
+            if request.GET.get("cor") != "all":
+                brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
+                brinco_selected = brinco_selected[0]
+                brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
             order_by_selected = request.GET.get("order_by")
             if order_by_selected == "crescente":
                 order_by_selected = order_by_selected
@@ -106,7 +107,7 @@ def CabecaListView(request):
                 order_by_selected = order_by_selected
                 order_by_text = "Brinco - Decrescente"
             order_by_selected = request.GET.get("order_by")
-            brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
+
         context = {"boi": "checked" if boi_checked else "",
                    "matriz": "checked" if matriz_checked else "",
                    "cria": "checked" if cria_checked else "",
@@ -125,7 +126,7 @@ def CabecaListView(request):
         cabecas_set = cabecas_set & brincos_set
 
         context["cabecas"] = cabecas_set
-        print(12,cabecas_set)
+        print(12,cabecas_set,matriz_checked)
         
 
         return render(request,"cabecaslist.html",context)
