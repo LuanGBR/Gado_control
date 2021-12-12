@@ -4,6 +4,7 @@ from django.db.models.fields import AutoField, BooleanField, DateField, FloatFie
 from django.db.models.fields.related import ForeignKey, OneToOneField
 from django.conf import settings
 from colorfield.fields import ColorField
+import datetime
 # Create your models here.
 
 
@@ -47,6 +48,13 @@ class cabecagado(models.Model):
         (CRIA,"Bezerro")
     )
     tipo = models.CharField(max_length=7,choices=TIPO_CHOICES,)
+
+    def idade(self):
+        dias = (datetime.date.today()-self.nascimento).days
+        anos = dias//365
+        meses = (dias%365)//30
+        dias = ((dias%365)%30)
+        return f"{f'{anos} anos, ' if anos else ''}{f'{meses} meses e ' if meses else ''}{dias} dias" 
 
 class boi(models.Model):
     id = AutoField(primary_key=True)

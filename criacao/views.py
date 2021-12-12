@@ -99,10 +99,10 @@ def CabecaListView(request):
                 order_by_text = "Brinco - Crescente"
             elif order_by_selected == "maisnovo":
                 order_by_selected = order_by_selected
-                order_by_text = "Mais novo"
+                order_by_text = "Idade - Mais novo"
             elif order_by_selected == "maisvelho":
                 order_by_selected = order_by_selected
-                order_by_text = "Mais velho"
+                order_by_text = "Idade - Mais velho"
             elif order_by_selected == "decrescente":
                 order_by_selected = order_by_selected
                 order_by_text = "Brinco - Decrescente"
@@ -124,9 +124,20 @@ def CabecaListView(request):
         if cria_checked:
             cabecas_set = cabecas_set.union(cabecagado.objects.filter(tipo=cabecagado.CRIA))
         cabecas_set = cabecas_set & brincos_set
-
+        if order_by_selected:
+            if order_by_selected == "crescente":
+                cabecas_set = cabecas_set.order_by('n_etiqueta')
+            elif order_by_selected == "maisnovo":
+                cabecas_set = cabecas_set.order_by('-nascimento')
+            elif order_by_selected == "maisvelho":
+                cabecas_set = cabecas_set.order_by('nascimento')
+            elif order_by_selected == "decrescente":
+                cabecas_set = cabecas_set.order_by('-n_etiqueta')
+        else:
+            cabecas_set = cabecas_set.order_by('-nascimento')
         context["cabecas"] = cabecas_set
-        print(12,cabecas_set,matriz_checked)
+        
+
         
 
         return render(request,"cabecaslist.html",context)
