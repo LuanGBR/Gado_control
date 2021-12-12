@@ -1,0 +1,36 @@
+<body>
+    <form action="list" method="get">
+        Filtro de categoria:
+        <input type = "checkbox"  id = "boi" name = "boi_checked" value = "True" {{boi}}>
+        <label for="boi">Touros</label>
+        <input type = "checkbox" id="matriz" name = "matriz_checked" value = "True" {{matriz}}>
+        <label for="matriz">Vacas</label>
+        <input type = "checkbox" id = "cria"  name = "cria_checked" value = "True" {{cria}}>
+        <label for="cria">Bezerros</label><br>
+        Filtro de cor:
+        <select name="cor">
+            {% if brinco_selected %}
+            <option value={{brinco_selected.id}} selected>{{brinco_selected.cor_nome}}</option>
+            {% endif %}
+            {% for brinco in brincos %}
+            <option value={{brinco.id}} />{{brinco.cor_nome}}</option>
+            {% endfor %}
+        </select>
+        Ordenar por: 
+        <select name="order_by">
+            {% if order_by_selected %}
+            <option value={{order_by_selected}} selected>{{order_by_text}}</option>
+            {% endif %}
+            <option value="maisnovo" >Mais novo</option>
+            <option value="maisvelho" >Mais velho</option>
+            <option value="crescente" >Brinco - Crescente</option>
+            <option value="decrescente" >Brinco - Decrescente</option>
+        </select>   
+        <input type="hidden" name="filtered" value="True">
+        <input type="submit" value="Filtrar" />
+    </form>
+
+
+
+   
+</body>

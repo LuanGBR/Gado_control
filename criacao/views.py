@@ -1,9 +1,9 @@
 from django.http.response import HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
-from django.template import RequestContext
+from django.template import RequestContext, context
 
-from criacao.models import cabeca_transacionada, cria, matriz, transacao
+from criacao.models import cabeca_transacionada, cria, matriz, transacao,brinco
 
 import plotly.graph_objects as go
 import datetime 
@@ -24,7 +24,7 @@ def LoginView(request):
         else:
             return redirect("login")
 
-def IndexView(request):
+def LandView(request):
     return render(request,"landpage.html")
 
 def HomeView(request):
@@ -72,3 +72,47 @@ def HomeView(request):
     if request.method == "POST":
         return HttpResponseNotFound("")
         
+
+def CabecaListView(request):
+    if request.method == "GET":
+        boi_checked = False
+        matriz_checked = False
+        cria_checked = True
+        order_by_selected = False
+        brinco_selected = False
+        order_by_text = False
+        if request.GET.get("filtered"):
+            if request.GET.get("boi_checked"):
+                boi_checked = True
+            if request.GET.get("matriz_checked"):
+                print(85)
+                matriz_checked = True
+            if not request.GET.get("cria_checked"):
+                cria_checked = False
+            brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
+            brinco_selected=brinco_selected[0]
+            order_by_selected = request.GET.get("order_by")
+            if order_by_selected == "crescente":
+                order_by_selected = order_by_selected
+                order_by_text = "Brinco - Crescente"
+            elif order_by_selected == "maisnovo":
+                order_by_selected = order_by_selected
+                order_by_text = "Mais novo"
+            elif order_by_selected == "maisvelho":
+                order_by_selected = order_by_selected
+                order_by_text = "Mais velho"
+            elif order_by_selected == "decrescente":
+                order_by_selected = order_by_selected
+                order_by_text = "Brinco - Decrescente"
+            order_by_selected = request.GET.get("order_by")
+        context = {"boi": "checked" if boi_checked else "",
+                   "matriz": "checked" if matriz_checked else "",
+                   "cria": "checked" if cria_checked else "",
+                   "brincos": brinco.objects.all(),
+                   "brinco_selected" : brinco_selected,
+                   "order_by_selected": order_by_selected,
+                   "order_by_text":order_by_text
+                   }
+
+        
+        return render(request,"cabecaslist.html",context)

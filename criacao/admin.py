@@ -2,6 +2,9 @@ from django.contrib import admin
 
 from criacao.models import boi, brinco, cabecagado, cria, ficha_medica, matriz, vacinas
 
+
+
+
 # Register your models here.
 admin.site.register(matriz)
 admin.site.register(cabecagado)

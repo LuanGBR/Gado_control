@@ -16,11 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from criacao.views import HomeView, IndexView, LoginView
+from criacao.views import CabecaListView, HomeView, LandView, LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("login",LoginView,name="login"),
-    path("",IndexView),
-    path("home",HomeView,name="home")
+    path("",LandView),
+    path("home",HomeView,name="home"),
+    path("list",CabecaListView)
 ]

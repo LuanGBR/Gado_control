@@ -3,6 +3,7 @@ from django.db.models.base import Model
 from django.db.models.fields import AutoField, BooleanField, DateField, FloatField, IntegerField, TextField
 from django.db.models.fields.related import ForeignKey, OneToOneField
 from django.conf import settings
+from colorfield.fields import ColorField
 # Create your models here.
 
 
@@ -18,8 +19,8 @@ class cabecagado(models.Model):
 
 class brinco(models.Model):
     id = AutoField(primary_key=True)
-    cor_nome = TextField(max_length=16)
-    cor_HEX = TextField(max_length=6)
+    cor_nome = TextField(max_length=16,unique=True)
+    cor = ColorField()
 
 class boi(models.Model):
     REQUIRED_FIELDS = ['cabecagado']
@@ -30,8 +31,8 @@ class boi(models.Model):
     esta_vivo = BooleanField(default=True)
     n_etiqueta = IntegerField(null=True)
     brinco = ForeignKey(brinco,on_delete=models.CASCADE)
-    morte = DateField(null=True)
-    causa_mortis = TextField(max_length=30,null=True)
+    morte = DateField(null=True,blank=True)
+    causa_mortis = TextField(blank=True,max_length=30,null=True)
 
 
 class matriz(models.Model):
@@ -58,8 +59,8 @@ class cria(models.Model):
     sexo = BooleanField() #True para macho, False para femea
     observacoes = TextField(max_length=280,blank=True,null=True)
     esta_vivo = BooleanField(default=True)
-    morte = DateField(null=True)
-    causa_mortis = TextField(max_length=30,null=True)
+    morte = DateField(null=True,blank=True)
+    causa_mortis = TextField(blank=True,max_length=30,null=True)
 
 class ficha_medica(models.Model):
     id=AutoField(primary_key=True)
