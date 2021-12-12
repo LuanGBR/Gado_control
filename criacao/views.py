@@ -5,7 +5,7 @@ from django.template import RequestContext, context
 from django.views.generic.edit import CreateView
 from criacao.forms import CabecagadoCreateForm, CriaCreateForm
 
-from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco
+from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas
 
 import plotly.graph_objects as go
 import datetime 
