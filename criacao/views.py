@@ -3,10 +3,19 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
 
-from criacao.models import cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco
+from criacao.models import cabeca_transacionada,ficha_medica, cabecagado, cria, matriz, transacao,brinco, vacinas
 
 import plotly.graph_objects as go
 import datetime 
+
+
+def DetailView(request, pk):
+    context = {'id':pk,
+    'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
+    'datas':ficha_medica.objects.get(cabecagado_id=pk).datas,
+    'observacoes':cabecagado.objects.get(id=pk).observacoes,
+    'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
+    return render(request,"detailview.html",context)
 
 
 

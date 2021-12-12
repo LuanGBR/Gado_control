@@ -60,7 +60,7 @@ class ficha_medica(models.Model):
 
 class vacinas(models.Model):
     id = AutoField(primary_key=True)
-    OneToOneField(ficha_medica,on_delete=models.CASCADE)
+    ficha_medica = OneToOneField(ficha_medica,on_delete=models.CASCADE)
     febre_aftosa = BooleanField(default=False)
     brucelose = BooleanField(default=False)
     clostridioses = BooleanField(default=False)
@@ -82,11 +82,3 @@ class cabeca_transacionada(models.Model):
     id = AutoField(primary_key=True)
     transacao = ForeignKey(transacao,on_delete=models.CASCADE)
     cabecagado = ForeignKey(cabecagado,on_delete=models.CASCADE)
-    
-    
-
-
-
-
-
-
