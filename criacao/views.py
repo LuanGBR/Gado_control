@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
 
-from criacao.models import cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco
+from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco
 
 import plotly.graph_objects as go
 import datetime 
@@ -81,6 +81,7 @@ def CabecaListView(request):
         order_by_selected = False
         brinco_selected = False
         order_by_text = False
+        brincos_set = cabecagado.objects.all()
         if request.GET.get("filtered"):
             if request.GET.get("boi_checked"):
                 boi_checked = True
@@ -105,6 +106,7 @@ def CabecaListView(request):
                 order_by_selected = order_by_selected
                 order_by_text = "Brinco - Decrescente"
             order_by_selected = request.GET.get("order_by")
+            brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
         context = {"boi": "checked" if boi_checked else "",
                    "matriz": "checked" if matriz_checked else "",
                    "cria": "checked" if cria_checked else "",
@@ -113,6 +115,17 @@ def CabecaListView(request):
                    "order_by_selected": order_by_selected,
                    "order_by_text":order_by_text
                    }
+        cabecas_set = cabecagado.objects.none()
+        if boi_checked:
+            cabecas_set = cabecas_set.union(cabecagado.objects.filter(tipo=cabecagado.BOI))
+        if matriz_checked:
+            cabecas_set = cabecas_set.union(cabecagado.objects.filter(tipo=cabecagado.MATRIZ))
+        if cria_checked:
+            cabecas_set = cabecas_set.union(cabecagado.objects.filter(tipo=cabecagado.CRIA))
+        cabecas_set = cabecas_set & brincos_set
 
+        context["cabecas"] = cabecas_set
+        print(12,cabecas_set)
         
+
         return render(request,"cabecaslist.html",context)

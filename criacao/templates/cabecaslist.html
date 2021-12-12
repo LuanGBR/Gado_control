@@ -9,6 +9,7 @@
         <label for="cria">Bezerros</label><br>
         Filtro de cor:
         <select name="cor">
+            <option value="all" selected>Todas</option>
             {% if brinco_selected %}
             <option value={{brinco_selected.id}} selected>{{brinco_selected.cor_nome}}</option>
             {% endif %}
@@ -30,7 +31,9 @@
         <input type="submit" value="Filtrar" />
     </form>
 
-
+    {% for cabeca in cabecas %}
+     <b>{{cabeca.tipo}} - {{cabeca.sexo}} - Brinco: </b><a href= "">{{cabeca.n_etiqueta}}/{{cabeca.brinco.cor_nome}}</a> - Nascimento: {{cabeca.nascimento}}<br>
+    {% endfor %}
 
    
 </body>

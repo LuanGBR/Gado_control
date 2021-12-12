@@ -24,20 +24,29 @@ class cabecagado(models.Model):
     n_etiqueta = IntegerField()
     brinco = ForeignKey(brinco,on_delete=models.CASCADE)
     nascimento = DateField()
-    MALE = 1
-    FEMALE = 0
-    MAR = "MAR"
+    MALE = "Macho"
+    FEMALE = "Fêmea"
 
     SEXO_CHOICES = (
         (MALE, "Macho"),
         (FEMALE, "Fêmea"),
     )
-    sexo = models.BooleanField(max_length=1,
+    sexo = models.CharField(max_length=5,
                   choices=SEXO_CHOICES,)
     observacoes = TextField(max_length=280,blank=True,null=True)
     esta_vivo = BooleanField(default=True)
     morte = DateField(null=True,blank=True)
     causa_mortis = CharField(blank=True,max_length=30,null=True)
+    BOI = "Boi"
+    MATRIZ = "Vaca"
+    CRIA = "Bezerro"
+
+    TIPO_CHOICES = (
+        (BOI, "Touro"),
+        (MATRIZ, "Vaca"),
+        (CRIA,"Bezerro")
+    )
+    tipo = models.CharField(max_length=7,choices=TIPO_CHOICES,)
 
 class boi(models.Model):
     id = AutoField(primary_key=True)
