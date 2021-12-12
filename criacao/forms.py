@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 from django import forms
 from django.forms.widgets import TextInput
-from .models import brinco, cabecagado
+from .models import brinco, cabecagado, cria
 import datetime
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -17,3 +17,8 @@ class CabecagadoCreateForm(ModelForm):
         'n_etiqueta': NumberInput(),
         'nascimento':DateInput()
         }
+
+class CriaCreateForm(ModelForm):
+    class Meta:
+        model = cria
+        fields = ['matriz']

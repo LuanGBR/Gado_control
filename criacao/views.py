@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
 from django.views.generic.edit import CreateView
-from criacao.forms import CabecagadoCreateForm
+from criacao.forms import CabecagadoCreateForm, CriaCreateForm
 
 from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco
 
@@ -159,12 +159,17 @@ def CabecaListView(request):
         
 
         return render(request,"cabecaslist.html",context)
-
-class CabecagadoCreateView(CreateView):
-    template_name = "cabecacreate.html"
-    model = cabecagado
-    form_class = CabecagadoCreateForm
-
-    def get_initial(self):
-        return {"nascimento":datetime.date.today().strftime("%d/%m/%Y")}
     
+
+def Criar_cabeça(request):
+    if request.method=="GET":
+        sel = "bezerro_sel"
+        context = {}
+        if request.GET.get("selected"):
+            opt =int(request.GET.get("Tipo"))
+            sel = ["boi_sel","vaca_sel","bezerro_sel"][opt-1]
+            context["form"] = CabecagadoCreateForm(initial={"nascimento":datetime.date.today().strftime("%d/%m/%Y")})
+            if opt == 3:
+                context["form_"] = CriaCreateForm()
+        context[sel]="selected"
+        return render(request,"cabecacreate.html",context)

@@ -69,7 +69,7 @@ class matriz(models.Model):
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
 
     def __str__(self):
-        return  self.cabecagado.n_etiqueta + "/" + self.cabecagado.brinco
+        return  str(self.cabecagado.n_etiqueta) + "/" + str(self.cabecagado.brinco)
 
 class cria(models.Model):
     id = AutoField(primary_key=True)
