@@ -2,8 +2,10 @@ from django.http.response import HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
+from django.views.generic.edit import CreateView
+from criacao.forms import CabecagadoCreateForm, CriaCreateForm
 
-from criacao.models import cabeca_transacionada,ficha_medica, cabecagado, cria, matriz, transacao,brinco, vacinas
+from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco
 
 import plotly.graph_objects as go
 import datetime 
@@ -72,7 +74,7 @@ def HomeView(request):
         trace1 = go.Bar(x=x, y=yf,name = "Fêmeas")
         trace2 = go.Bar(x=x, y=ym,name = "Machos")
 
-        layout=go.Layout(title="Bezerros prontos para desmame (por mês)", yaxis={'title':'Número de bezerros'})
+        layout=go.Layout(title="Bezerros prontos para desmame (próximos meses)", yaxis={'title':'Número de bezerros'})
         figure=go.Figure(data=[trace1,trace2],layout=layout)
     
         context['graph'] = figure.to_html(full_html=False)
@@ -90,38 +92,93 @@ def CabecaListView(request):
         order_by_selected = False
         brinco_selected = False
         order_by_text = False
+        category_filter = "ativos"
+        category_text = "Ativos"
+        brincos_set = cabecagado.objects.all()
         if request.GET.get("filtered"):
             if request.GET.get("boi_checked"):
                 boi_checked = True
             if request.GET.get("matriz_checked"):
-                print(85)
                 matriz_checked = True
             if not request.GET.get("cria_checked"):
                 cria_checked = False
-            brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
-            brinco_selected=brinco_selected[0]
+            if request.GET.get("cor") != "all":
+                brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
+                brinco_selected = brinco_selected[0]
+                brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
+            category_filter = request.GET.get("categoria")
+            category_text = category_filter.capitalize()
+
             order_by_selected = request.GET.get("order_by")
             if order_by_selected == "crescente":
                 order_by_selected = order_by_selected
                 order_by_text = "Brinco - Crescente"
             elif order_by_selected == "maisnovo":
                 order_by_selected = order_by_selected
-                order_by_text = "Mais novo"
+                order_by_text = "Idade - Mais novo"
             elif order_by_selected == "maisvelho":
                 order_by_selected = order_by_selected
-                order_by_text = "Mais velho"
+                order_by_text = "Idade - Mais velho"
             elif order_by_selected == "decrescente":
                 order_by_selected = order_by_selected
                 order_by_text = "Brinco - Decrescente"
             order_by_selected = request.GET.get("order_by")
+
         context = {"boi": "checked" if boi_checked else "",
                    "matriz": "checked" if matriz_checked else "",
                    "cria": "checked" if cria_checked else "",
                    "brincos": brinco.objects.all(),
                    "brinco_selected" : brinco_selected,
                    "order_by_selected": order_by_selected,
-                   "order_by_text":order_by_text
+                   "order_by_text":order_by_text,
+                   "category":category_filter,
+                   "category_text": category_text
                    }
+        
+        if category_filter == "ativos":
+            status_set = cabecagado.objects.filter(esta_vivo=True)&cabecagado.objects.filter(vendido=False)
+        elif category_filter == "mortos":
+            status_set = cabecagado.objects.filter(esta_vivo=False)
+        elif category_filter == "vendidos":
+            status_set = cabecagado.objects.filter(vendido=True)
+        cabecas_set = cabecagado.objects.none()
+        if boi_checked:
+            cabecas_set = cabecas_set.union(cabecagado.objects.filter(tipo=cabecagado.BOI))
+        if matriz_checked:
+            cabecas_set = cabecas_set.union(cabecagado.objects.filter(tipo=cabecagado.MATRIZ))
+        if cria_checked:
+            cabecas_set = cabecas_set.union(cabecagado.objects.filter(tipo=cabecagado.CRIA))
+
+        final_set = cabecas_set.intersection(brincos_set,status_set)
+
+        if order_by_selected:
+            if order_by_selected == "crescente":
+                final_set = final_set.order_by('n_etiqueta')
+            elif order_by_selected == "maisnovo":
+                final_set = final_set.order_by('-nascimento')
+            elif order_by_selected == "maisvelho":
+                final_set = final_set.order_by('nascimento')
+            elif order_by_selected == "decrescente":
+                final_set = final_set.order_by('-n_etiqueta')
+        else:
+            final_set = final_set.order_by('-nascimento')
+        context["cabecas"] = final_set
+        
 
         
+
         return render(request,"cabecaslist.html",context)
+    
+
+def Criar_cabeça(request):
+    if request.method=="GET":
+        sel = "bezerro_sel"
+        context = {}
+        if request.GET.get("selected"):
+            opt =int(request.GET.get("Tipo"))
+            sel = ["boi_sel","vaca_sel","bezerro_sel"][opt-1]
+            context["form"] = CabecagadoCreateForm(initial={"nascimento":datetime.date.today().strftime("%d/%m/%Y")})
+            if opt == 3:
+                context["form_"] = CriaCreateForm()
+        context[sel]="selected"
+        return render(request,"cabecacreate.html",context)

@@ -1,3 +1,6 @@
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
 <body>
     <form action="list" method="get">
         Filtro de categoria:
@@ -6,9 +9,18 @@
         <input type = "checkbox" id="matriz" name = "matriz_checked" value = "True" {{matriz}}>
         <label for="matriz">Vacas</label>
         <input type = "checkbox" id = "cria"  name = "cria_checked" value = "True" {{cria}}>
-        <label for="cria">Bezerros</label><br>
+        <label for="cria">Bezerros</label>
+        <select name="categoria">
+            {% if order_by_selected %}
+            <option value={{category}} selected>{{category_text}}</option>
+            {% endif %}
+            <option value="ativos" >Ativos</option>
+            <option value="mortos" >Mortos</option>
+            <option value="vendidos" >Vendidos</option>
+        </select><br>
         Filtro de cor:
         <select name="cor">
+            <option value="all" selected>Todas</option>
             {% if brinco_selected %}
             <option value={{brinco_selected.id}} selected>{{brinco_selected.cor_nome}}</option>
             {% endif %}
@@ -21,8 +33,8 @@
             {% if order_by_selected %}
             <option value={{order_by_selected}} selected>{{order_by_text}}</option>
             {% endif %}
-            <option value="maisnovo" >Mais novo</option>
-            <option value="maisvelho" >Mais velho</option>
+            <option value="maisnovo" >Idade - Mais novo</option>
+            <option value="maisvelho" >Idade - Mais velho</option>
             <option value="crescente" >Brinco - Crescente</option>
             <option value="decrescente" >Brinco - Decrescente</option>
         </select>   
@@ -30,7 +42,9 @@
         <input type="submit" value="Filtrar" />
     </form>
 
-
+    {% for cabeca in cabecas %}
+     <b>{{cabeca.tipo}} - {{cabeca.sexo}} - Brinco: </b><a href= "">{{cabeca.n_etiqueta}}/{{cabeca.brinco.cor_nome}}</a> - Idade: {{cabeca.idade}}<br>
+    {% endfor %}
 
    
 </body>

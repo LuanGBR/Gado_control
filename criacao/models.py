@@ -4,6 +4,7 @@ from django.db.models.fields import AutoField, BooleanField, DateField, FloatFie
 from django.db.models.fields.related import ForeignKey, OneToOneField
 from django.conf import settings
 from colorfield.fields import ColorField
+import datetime
 # Create your models here.
 
 
@@ -18,26 +19,46 @@ class brinco(models.Model):
     cor_nome = CharField(max_length=16,unique=True)
     cor = ColorField()
 
+    def __str__(self):
+        return  self.cor_nome
+
 class cabecagado(models.Model):
     id = AutoField(primary_key=True)
     author = ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     n_etiqueta = IntegerField()
     brinco = ForeignKey(brinco,on_delete=models.CASCADE)
     nascimento = DateField()
-    MALE = 1
-    FEMALE = 0
-    MAR = "MAR"
+    MALE = "Macho"
+    FEMALE = "Fêmea"
 
     SEXO_CHOICES = (
         (MALE, "Macho"),
         (FEMALE, "Fêmea"),
     )
-    sexo = models.BooleanField(max_length=1,
+    sexo = models.CharField(max_length=5,
                   choices=SEXO_CHOICES,)
     observacoes = TextField(max_length=280,blank=True,null=True)
     esta_vivo = BooleanField(default=True)
+    vendido = BooleanField(default=False)
     morte = DateField(null=True,blank=True)
     causa_mortis = CharField(blank=True,max_length=30,null=True)
+    BOI = "Boi"
+    MATRIZ = "Vaca"
+    CRIA = "Bezerro"
+
+    TIPO_CHOICES = (
+        (BOI, "Touro"),
+        (MATRIZ, "Vaca"),
+        (CRIA,"Bezerro")
+    )
+    tipo = models.CharField(max_length=7,choices=TIPO_CHOICES,)
+
+    def idade(self):
+        dias = (datetime.date.today()-self.nascimento).days
+        anos = dias//365
+        meses = (dias%365)//30
+        dias = ((dias%365)%30)
+        return f"{f'{anos} anos, ' if anos else ''}{f'{meses} meses e ' if meses else ''}{dias} dias" 
 
 class boi(models.Model):
     id = AutoField(primary_key=True)
@@ -46,6 +67,9 @@ class boi(models.Model):
 class matriz(models.Model):
     id = AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
+
+    def __str__(self):
+        return  str(self.cabecagado.n_etiqueta) + "/" + str(self.cabecagado.brinco)
 
 class cria(models.Model):
     id = AutoField(primary_key=True)
