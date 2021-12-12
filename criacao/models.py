@@ -19,6 +19,9 @@ class brinco(models.Model):
     cor_nome = CharField(max_length=16,unique=True)
     cor = ColorField()
 
+    def __str__(self):
+        return  self.cor_nome
+
 class cabecagado(models.Model):
     id = AutoField(primary_key=True)
     author = ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
@@ -36,6 +39,7 @@ class cabecagado(models.Model):
                   choices=SEXO_CHOICES,)
     observacoes = TextField(max_length=280,blank=True,null=True)
     esta_vivo = BooleanField(default=True)
+    vendido = BooleanField(default=False)
     morte = DateField(null=True,blank=True)
     causa_mortis = CharField(blank=True,max_length=30,null=True)
     BOI = "Boi"
@@ -64,6 +68,9 @@ class matriz(models.Model):
     id = AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
 
+    def __str__(self):
+        return  self.cabecagado.n_etiqueta + "/" + self.cabecagado.brinco
+
 class cria(models.Model):
     id = AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
@@ -77,7 +84,7 @@ class ficha_medica(models.Model):
 
 class vacinas(models.Model):
     id = AutoField(primary_key=True)
-    OneToOneField(ficha_medica,on_delete=models.CASCADE)
+    ficha_medica = OneToOneField(ficha_medica,on_delete=models.CASCADE)
     febre_aftosa = BooleanField(default=False)
     brucelose = BooleanField(default=False)
     clostridioses = BooleanField(default=False)

@@ -2,6 +2,8 @@ from django.http.response import HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
+from django.views.generic.edit import CreateView
+from criacao.forms import CabecagadoCreateForm
 
 from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco
 
@@ -63,7 +65,7 @@ def HomeView(request):
         trace1 = go.Bar(x=x, y=yf,name = "Fêmeas")
         trace2 = go.Bar(x=x, y=ym,name = "Machos")
 
-        layout=go.Layout(title="Bezerros prontos para desmame (por mês)", yaxis={'title':'Número de bezerros'})
+        layout=go.Layout(title="Bezerros prontos para desmame (próximos meses)", yaxis={'title':'Número de bezerros'})
         figure=go.Figure(data=[trace1,trace2],layout=layout)
     
         context['graph'] = figure.to_html(full_html=False)
@@ -81,6 +83,8 @@ def CabecaListView(request):
         order_by_selected = False
         brinco_selected = False
         order_by_text = False
+        category_filter = "ativos"
+        category_text = "Ativos"
         brincos_set = cabecagado.objects.all()
         if request.GET.get("filtered"):
             if request.GET.get("boi_checked"):
@@ -93,6 +97,9 @@ def CabecaListView(request):
                 brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
                 brinco_selected = brinco_selected[0]
                 brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
+            category_filter = request.GET.get("categoria")
+            category_text = category_filter.capitalize()
+
             order_by_selected = request.GET.get("order_by")
             if order_by_selected == "crescente":
                 order_by_selected = order_by_selected
@@ -114,8 +121,17 @@ def CabecaListView(request):
                    "brincos": brinco.objects.all(),
                    "brinco_selected" : brinco_selected,
                    "order_by_selected": order_by_selected,
-                   "order_by_text":order_by_text
+                   "order_by_text":order_by_text,
+                   "category":category_filter,
+                   "category_text": category_text
                    }
+        
+        if category_filter == "ativos":
+            status_set = cabecagado.objects.filter(esta_vivo=True)&cabecagado.objects.filter(vendido=False)
+        elif category_filter == "mortos":
+            status_set = cabecagado.objects.filter(esta_vivo=False)
+        elif category_filter == "vendidos":
+            status_set = cabecagado.objects.filter(vendido=True)
         cabecas_set = cabecagado.objects.none()
         if boi_checked:
             cabecas_set = cabecas_set.union(cabecagado.objects.filter(tipo=cabecagado.BOI))
@@ -123,21 +139,32 @@ def CabecaListView(request):
             cabecas_set = cabecas_set.union(cabecagado.objects.filter(tipo=cabecagado.MATRIZ))
         if cria_checked:
             cabecas_set = cabecas_set.union(cabecagado.objects.filter(tipo=cabecagado.CRIA))
-        cabecas_set = cabecas_set & brincos_set
+
+        final_set = cabecas_set.intersection(brincos_set,status_set)
+
         if order_by_selected:
             if order_by_selected == "crescente":
-                cabecas_set = cabecas_set.order_by('n_etiqueta')
+                final_set = final_set.order_by('n_etiqueta')
             elif order_by_selected == "maisnovo":
-                cabecas_set = cabecas_set.order_by('-nascimento')
+                final_set = final_set.order_by('-nascimento')
             elif order_by_selected == "maisvelho":
-                cabecas_set = cabecas_set.order_by('nascimento')
+                final_set = final_set.order_by('nascimento')
             elif order_by_selected == "decrescente":
-                cabecas_set = cabecas_set.order_by('-n_etiqueta')
+                final_set = final_set.order_by('-n_etiqueta')
         else:
-            cabecas_set = cabecas_set.order_by('-nascimento')
-        context["cabecas"] = cabecas_set
+            final_set = final_set.order_by('-nascimento')
+        context["cabecas"] = final_set
         
 
         
 
         return render(request,"cabecaslist.html",context)
+
+class CabecagadoCreateView(CreateView):
+    template_name = "cabecacreate.html"
+    model = cabecagado
+    form_class = CabecagadoCreateForm
+
+    def get_initial(self):
+        return {"nascimento":datetime.date.today().strftime("%d/%m/%Y")}
+    

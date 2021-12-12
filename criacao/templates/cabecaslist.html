@@ -1,3 +1,6 @@
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
 <body>
     <form action="list" method="get">
         Filtro de categoria:
@@ -6,7 +9,15 @@
         <input type = "checkbox" id="matriz" name = "matriz_checked" value = "True" {{matriz}}>
         <label for="matriz">Vacas</label>
         <input type = "checkbox" id = "cria"  name = "cria_checked" value = "True" {{cria}}>
-        <label for="cria">Bezerros</label><br>
+        <label for="cria">Bezerros</label>
+        <select name="categoria">
+            {% if order_by_selected %}
+            <option value={{category}} selected>{{category_text}}</option>
+            {% endif %}
+            <option value="ativos" >Ativos</option>
+            <option value="mortos" >Mortos</option>
+            <option value="vendidos" >Vendidos</option>
+        </select><br>
         Filtro de cor:
         <select name="cor">
             <option value="all" selected>Todas</option>

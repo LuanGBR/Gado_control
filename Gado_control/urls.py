@@ -15,13 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from criacao.models import cabecagado
 
-from criacao.views import CabecaListView, HomeView, LandView, LoginView
+from criacao.views import CabecaListView, CabecagadoCreateView, HomeView, LandView, LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("login",LoginView,name="login"),
     path("",LandView),
     path("home",HomeView,name="home"),
-    path("list",CabecaListView)
+    path("list",CabecaListView),
+    path("add/cabeca",CabecagadoCreateView.as_view())
 ]
