@@ -106,11 +106,3 @@ class cabeca_transacionada(models.Model):
     id = AutoField(primary_key=True)
     transacao = ForeignKey(transacao,on_delete=models.CASCADE)
     cabecagado = ForeignKey(cabecagado,on_delete=models.CASCADE)
-    
-    
-
-
-
-
-
-

@@ -1,0 +1,9 @@
+<body>
+    <h1>Transações:</h1>
+    {% for t in transacoes %}
+    <p>Transação do dia: {{t.data}}</p>
+    <p>Tipo: {{t.tipo}}</p>
+    <p>Negocida com: {{t.envolvido}}</p>
+    <p>R${{t.valor}},00</p><br>
+    {% endfor %}
+</body>

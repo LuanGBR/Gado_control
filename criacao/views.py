@@ -5,12 +5,76 @@ from django.template import RequestContext, context
 from django.views.generic.edit import CreateView
 from criacao.forms import CabecagadoCreateForm, CriaCreateForm
 
-from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco
+from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas
 
 import plotly.graph_objects as go
 import datetime 
 
 
+def DetailView(request, pk):
+    tipo = cabecagado.objects.get(id=pk).tipo
+    if( tipo == "Boi"):
+        context = {'id':pk,
+        'tipo' : tipo,
+        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
+        'datas':ficha_medica.objects.get(cabecagado_id=pk).datas,
+        'observacoes':cabecagado.objects.get(id=pk).observacoes,
+        'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
+        return render(request,"detailview.html",context)
+
+    elif(tipo == "Bezerro"):
+        context = {'id':pk,
+        'tipo' : tipo,
+        'matriz': cria.objects.get(cabecagado_id=pk).matriz_id,
+        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
+        'datas':ficha_medica.objects.get(cabecagado_id=pk).datas,
+        'observacoes':cabecagado.objects.get(id=pk).observacoes,
+        'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
+        return render(request,"detailview.html",context)
+
+    else:
+         
+  #      ids = []
+ #       nascimentos_crias = []
+ #       somatoria = datetime()
+ #       crias = cria.objects.filter(matriz_id = pk)
+ #       for c in crias:
+ #           nascimentos_crias.append(cabecagado.objects.get(id = c.cabecagado_id).nascimento)
+ #       for i in range(len(nascimentos_crias)):
+ #           somatoria += nascimentos_crias[i+1] - nascimentos_crias[i]
+ #       tempo_crias = somatoria/len(nascimentos_crias)
+
+        context = {'id':pk,
+        'tipo' : tipo,
+ #       'nascimentos_crias':nascimentos_crias,
+        'gestacoes': str(cria.objects.filter(matriz_id = pk).count()),
+        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
+        'datas':ficha_medica.objects.get(cabecagado_id=pk).datas,
+        'observacoes':cabecagado.objects.get(id=pk).observacoes,
+        'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
+        return render(request,"detailview.html",context)
+
+def TransacaoCreate(request):
+
+    pass
+
+def TransacaoList(request):
+    context = {"transacoes":transacao.objects.all()}
+    return render(request,"transacaoList.html", context)
+
+def TransacaoDetail(request, pk):
+    context = {
+        'id': pk,
+        'tipo': transacao.objects.get(id=pk).tipo,
+        'valor': transacao.objects.get(id=pk).valor,
+        'data': transacao.objects.get(id=pk).data,
+        'envolvido': transacao.objects.get(id=pk).envolvido,
+    }
+    return render(request,"transacoesDetail.html", context)
+
+def TransacaoConfirm(request):
+
+    pass
 
 # Create your views here.
 def LoginView(request):
