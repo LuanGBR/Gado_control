@@ -60,6 +60,8 @@ class cabecagado(models.Model):
         dias = ((dias%365)%30)
         return f"{f'{anos} anos, ' if anos else ''}{f'{meses} meses e ' if meses else ''}{dias} dias" 
 
+    
+
 class boi(models.Model):
     id = AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
@@ -79,8 +81,8 @@ class cria(models.Model):
 class ficha_medica(models.Model):
     id=AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
-    pesos = CharField(max_length=1024,null=True)
-    datas = CharField(max_length=1024,null=True)
+    pesos = CharField(max_length=1024,null=True,default="")
+    datas = CharField(max_length=1024,null=True,default="")
 
 class vacinas(models.Model):
     id = AutoField(primary_key=True)

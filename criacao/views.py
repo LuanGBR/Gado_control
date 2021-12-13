@@ -242,7 +242,6 @@ def Criar_cabeça(request):
         return render(request,"cabecacreate.html",context)
     if request.method=="POST":
         cabeca = cabecagado()
-        print(request.POST.get("n_etiqueta"))
         cabeca.n_etiqueta = request.POST.get("n_etiqueta")
         cabeca.brinco = brinco.objects.get(id=request.POST.get("brinco"))
         cabeca.nascimento = request.POST.get("nascimento")
@@ -250,6 +249,12 @@ def Criar_cabeça(request):
         cabeca.tipo = [cabecagado.BOI,cabecagado.MATRIZ,cabecagado.CRIA][int(request.POST.get("tipo"))-1]
         cabeca.author = get_user(request)
         cabeca.save()
+        ficha = ficha_medica()
+        ficha.cabecagado = cabeca
+        ficha.save()
+        vac = vacinas()
+        vac.ficha_medica = ficha
+        vac.save()
         s = request.POST.get("tipo")
         if s == "1":
             obj = boi()
@@ -262,5 +267,5 @@ def Criar_cabeça(request):
             obj.cabecagado = cabeca
             obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
         obj.save()
-        return HttpResponse("Deu Certo")
+        return redirect(f"/{cabeca.id}/view")
 
