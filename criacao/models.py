@@ -59,6 +59,9 @@ class cabecagado(models.Model):
         meses = (dias%365)//30
         dias = ((dias%365)%30)
         return f"{f'{anos} anos, ' if anos else ''}{f'{meses} meses e ' if meses else ''}{dias} dias" 
+    
+    def __str__(self):
+        return  str(self.n_etiqueta) + "/" + str(self.brinco)
 
     
 
@@ -70,8 +73,8 @@ class matriz(models.Model):
     id = AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
 
-    def __str__(self):
-        return  str(self.cabecagado.n_etiqueta) + "/" + str(self.cabecagado.brinco)
+   # def __str__(self):
+    #    return  str(self.cabecagado.n_etiqueta) + "/" + str(self.cabecagado.brinco)
 
 class cria(models.Model):
     id = AutoField(primary_key=True)

@@ -13,9 +13,11 @@ import datetime
 
 def DetailView(request, pk):
     tipo = cabecagado.objects.get(id=pk).tipo
+    identificacao = cabecagado.__str__(cabecagado.objects.get(id=pk))
     if( tipo == "Boi"):
         context = {'id':pk,
         'tipo' : tipo,
+        'identificacao':identificacao,
         'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
         'datas':ficha_medica.objects.get(cabecagado_id=pk).datas,
         'observacoes':cabecagado.objects.get(id=pk).observacoes,
@@ -25,6 +27,7 @@ def DetailView(request, pk):
     elif(tipo == "Bezerro"):
         context = {'id':pk,
         'tipo' : tipo,
+        'identificacao':identificacao,
         'matriz': cria.objects.get(cabecagado_id=pk).matriz_id,
         'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
         'datas':ficha_medica.objects.get(cabecagado_id=pk).datas,
@@ -43,9 +46,9 @@ def DetailView(request, pk):
  #       for i in range(len(nascimentos_crias)):
  #           somatoria += nascimentos_crias[i+1] - nascimentos_crias[i]
  #       tempo_crias = somatoria/len(nascimentos_crias)
-
         context = {'id':pk,
         'tipo' : tipo,
+        'identificacao':identificacao,
  #       'nascimentos_crias':nascimentos_crias,
         'gestacoes': str(cria.objects.filter(matriz_id = pk).count()),
         'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
