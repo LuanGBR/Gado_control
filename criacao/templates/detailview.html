@@ -17,6 +17,16 @@
             <li>
                 Peso: {{pesos}}
             </li>
+            {% if gestacoes %}
+            <li>
+                Já teve {{gestacoes}} gestações
+            </li>
+            {% endif %}
+            {% if matriz %}
+            <li>
+                Matriz: #{{matriz}}
+            </li>
+            {% endif %}
         </ul>
         <h3>Observações: </h3>
         <br>
