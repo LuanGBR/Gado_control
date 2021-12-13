@@ -1,4 +1,4 @@
-from django.http.response import HttpResponseNotFound
+from django.http.response import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
@@ -164,6 +164,7 @@ def CabecaListView(request):
 def Criar_cabeça(request):
     if request.method=="GET":
         sel = "bezerro_sel"
+        opt = 3
         context = {}
         if request.GET.get("selected"):
             opt =int(request.GET.get("Tipo"))
@@ -171,5 +172,31 @@ def Criar_cabeça(request):
             context["form"] = CabecagadoCreateForm(initial={"nascimento":datetime.date.today().strftime("%d/%m/%Y")})
             if opt == 3:
                 context["form_"] = CriaCreateForm()
+            context["mensagem"]="Adicionando " + ["novo touro:","nova vaca:","novo bezerro:"][opt-1]
         context[sel]="selected"
+        context["tipo"]=str(opt)
         return render(request,"cabecacreate.html",context)
+    if request.method=="POST":
+        cabeca = cabecagado()
+        print(request.POST.get("n_etiqueta"))
+        cabeca.n_etiqueta = request.POST.get("n_etiqueta")
+        cabeca.brinco = brinco.objects.get(id=request.POST.get("brinco"))
+        cabeca.nascimento = request.POST.get("nascimento")
+        cabeca.sexo = request.POST.get("sexo")
+        cabeca.tipo = [cabecagado.BOI,cabecagado.MATRIZ,cabecagado.CRIA][int(request.POST.get("tipo"))-1]
+        cabeca.author = get_user(request)
+        cabeca.save()
+        s = request.POST.get("tipo")
+        if s == "1":
+            obj = boi()
+            obj.cabecagado = cabeca
+        elif s == "2":
+            obj = matriz()
+            obj.cabecagado = cabeca
+        elif s =="3":
+            obj = cria()
+            obj.cabecagado = cabeca
+            obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
+        obj.save()
+        return HttpResponse("Deu Certo")
+

@@ -1,16 +1,18 @@
 <body>
     <form methot="get">
         <input type="hidden" name="selected" value="1">
-        Que Tipo de Cabeça de gado gostaria de Criar?<br>
+        Que tipo de cabeça de gado gostaria de criar?<br>
         <select name="Tipo">
             <option value="3" {{bezerro_sel}}>Bezerro</option>
-            <option value="1" {{boi_sel}}>Boi</option>
-            <option value="2" {{Vaca_sel}}>Vaca</option>
+            <option value="1" {{boi_sel}}>Touro</option>
+            <option value="2" {{vaca_sel}}>Vaca</option>
 
         </select>
         <input type="submit" value="OK" />
     </form>
+    {{ mensagem }}
     <form method="post">{% csrf_token %}
+        <input type="hidden" name="tipo" value="{{ tipo }}">
         {{ form.as_p }}
         {{ form_.as_p }}
         <input type="submit" value="Save">
