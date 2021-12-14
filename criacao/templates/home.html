@@ -1,6 +1,9 @@
 <body>
     Bem-Vindo<br><br>
-    <div style="height :500px; width: 80%">
+    <div style="height :400px; width: 100%">
         {{graph | safe}}
     </div> 
+    {% for transacao,descricao in transacoes_descricoes%}
+    <li><a href="/transacao/{{transacao.id}}/view">{{descricao}}</a></li>
+    {% endfor %}
 </body>
