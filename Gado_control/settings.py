@@ -49,9 +49,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'Gado_control.urls'
+
 
 TEMPLATES = [
     {
@@ -69,7 +72,17 @@ TEMPLATES = [
     },
 ]
 
+CORS_ORIGIN_ALLOW = True
+
 WSGI_APPLICATION = 'Gado_control.wsgi.application'
+
+ALLOWED_HOSTS = ['*']
+
+CORS_ORIGIN_WHITELIST = (
+    u'http://localhost:8888',
+    u'http://127.0.0.1:8000',
+    u'http://localhost:3000',
+)
 
 
 # Database
