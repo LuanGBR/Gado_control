@@ -58,6 +58,34 @@ def DetailView(request, pk):
         'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
         return render(request,"detailview.html",context)
 
+def TransacaoEdit(request,pk):
+    if request.method == "GET":
+        context = {}
+        context['form'] = TransacaoCreateForm()
+        return render(request, "transacoesEdit.html",context)
+    if request.method =="POST":
+        t = transacao()
+        t.id = pk
+        stringTransacao = request.POST.get('tags')
+        cabecas_transacionadas = str(stringTransacao).split(",")
+        array_cabecas = [cabeca_transacionada() for i in range(len(cabecas_transacionadas))]
+        t.valor = request.POST.get('valor')
+        t.envolvido = request.POST.get('envolvido')
+        t.data = request.POST.get('data')
+        t.tags = stringTransacao
+        checkTipo = request.POST.get('tipo')
+        if checkTipo == "on":
+            t.tipo = True
+        else:
+            t.tipo = False
+        t.save()
+        antigoRegistro = cabeca_transacionada.objects.filter(transacao_id=pk).delete()
+        for i in range(len(array_cabecas)):
+            array_cabecas[i].transacao_id = pk
+            array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id            
+            array_cabecas[i].save()
+        return redirect(f"/transacoes/{t.id}/view")
+
 def TransacaoCreate(request):
     if request.method == "GET":
         context = {}
@@ -81,9 +109,7 @@ def TransacaoCreate(request):
         for i in range(len(array_cabecas)):
             array_cabecas[i].transacao_id = t.id
             array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
-            #cabecagado.objects.get(id=array_cabecas[i].id)
             array_cabecas[i].save()
-        
         return redirect(f"/transacoes/{t.id}/view")
 
 
@@ -116,10 +142,6 @@ def TransacaoDetail(request, pk):
         'tags': tags
     }
     return render(request,"transacoesDetail.html", context)
-
-def TransacaoEdit(request,pk):
-
-    pass
 
 # Create your views here.
 def LoginView(request):
