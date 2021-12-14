@@ -43,8 +43,8 @@
     </form>
 
     {% for cabeca in cabecas %}
-     <b>{{cabeca.tipo}} - {{cabeca.sexo}} - Brinco: </b><a href= "">{{cabeca.n_etiqueta}}/{{cabeca.brinco.cor_nome}}</a> - Idade: {{cabeca.idade}}<br>
+     <b>{{cabeca.tipo}} - {{cabeca.sexo}} - Brinco: </b><a href= "{{cabeca.id}}/view">{{cabeca.n_etiqueta}}/{{cabeca.brinco.cor_nome}}</a> - Idade: {{cabeca.idade}}<br>
     {% endfor %}
-
+    <a href="{% url 'home' %}">Home</a>
    
 </body>

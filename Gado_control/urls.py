@@ -24,7 +24,7 @@ urlpatterns = [
     path("login",LoginView,name="login"),
     path("",LandView),
     path("home",HomeView,name="home"),
-    path("list",CabecaListView),
+    path("list",CabecaListView, name="list"),
     path("add/cabeca",Criar_cabeça),
     path("<pk>/view",DetailView, name="detail"),
     path("transacoes",TransacaoList, name="transacoes"),

@@ -38,21 +38,5 @@ class TransacaoCreateForm(ModelForm):
         }
         widgets = {
             'data':DateInput(),
-            'valor':NumberInput(),
-            'tipo': CheckboxInput()
+            'valor':NumberInput()
         }
-class TransacaoCreateForm(ModelForm):
-    class Meta:
-        model = transacao
-        fields = ['valor', 'envolvido', 'data', 'tags', 'observacoes','tipo']
-        labels = {'valor':"Valor da transação", 
-        'envolvido':"Envolvido", 
-        'data':"Data da transição:", 
-        'tags':"Identificação da(s) cabeça(s) de gado:",
-        'observacoes':"Observações:"
-        }
-        widgets = {
-            'data':DateInput(),
-            'valor':NumberInput(),
-            'tipo': CheckboxInput()
-        } 

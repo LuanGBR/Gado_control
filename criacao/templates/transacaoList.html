@@ -1,9 +1,8 @@
 <body>
     <h1>Transações:</h1>
     {% for t in transacoes %}
-    <p>Transação do dia: {{t.data}}</p>
-    <p>Tipo: {{t.tipo}}</p>
-    <p>Negocida com: {{t.envolvido}}</p>
-    <p>R${{t.valor}},00</p><br>
+    <a href="transacoes/{{t.id}}/view">Transação do dia: {{t.data}} || Negocida com: {{t.envolvido}}</a>
+    <BR><BR>
     {% endfor %}
+    <a href="{% url 'home' %}">Home</a>
 </body>

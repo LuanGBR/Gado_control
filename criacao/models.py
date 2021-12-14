@@ -101,8 +101,14 @@ class vacinas(models.Model):
 
 
 class transacao(models.Model):
+    VENDA = "Venda"
+    COMPRA = "Compra"
+    Transacao_choices = (
+        (COMPRA,"Compra"),
+        (VENDA,"Venda")
+    )
     id = AutoField(primary_key=True)
-    tipo = BooleanField() #True para Venda, False para compra
+    tipo = CharField(max_length=6,choices=Transacao_choices) #True para Venda, False para compra
     valor = FloatField()
     envolvido = CharField(max_length=32)
     data = DateField()

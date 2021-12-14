@@ -60,7 +60,7 @@ def DetailView(request, pk):
 
 def TransacaoEdit(request,pk):
     if request.method == "GET":
-        context = {}
+        context = {'id':pk}
         context['form'] = TransacaoCreateForm()
         return render(request, "transacoesEdit.html",context)
     if request.method =="POST":
@@ -73,11 +73,7 @@ def TransacaoEdit(request,pk):
         t.envolvido = request.POST.get('envolvido')
         t.data = request.POST.get('data')
         t.tags = stringTransacao
-        checkTipo = request.POST.get('tipo')
-        if checkTipo == "on":
-            t.tipo = True
-        else:
-            t.tipo = False
+        t.tipo = request.POST.get('tipo')
         t.save()
         antigoRegistro = cabeca_transacionada.objects.filter(transacao_id=pk).delete()
         for i in range(len(array_cabecas)):
@@ -100,11 +96,7 @@ def TransacaoCreate(request):
         t.envolvido = request.POST.get('envolvido')
         t.data = request.POST.get('data')
         t.tags = stringTransacao
-        checkTipo = request.POST.get('tipo')
-        if checkTipo == "on":
-            t.tipo = True
-        else:
-            t.tipo = False
+        t.tipo = request.POST.get('tipo')
         t.save()
         for i in range(len(array_cabecas)):
             array_cabecas[i].transacao_id = t.id
@@ -122,17 +114,11 @@ def TransacaoDetail(request, pk):
     transacionadas = cabeca_transacionada.objects.filter(transacao_id = pk)
     tags = []
     for i in transacionadas:
-       # tags.append(str(i.cabecagado_id))
-        tags.append(str(cabecagado.__str__(cabecagado.objects.get(id=pk))))
+        tags.append(str(cabecagado.__str__(cabecagado.objects.get(id=i.cabecagado_id))))
         if i != transacionadas[len(transacionadas)-1]:
             tags.append(", ")
     tags = "".join(tags)
-    identificacao = cabecagado.__str__(cabecagado.objects.get(id=pk))
     tipo = transacao.objects.get(id=pk).tipo
-    if tipo == True:
-        tipo = "Venda"
-    elif tipo == False:
-        tipo = "Compra"
     context = {
         'id': pk,
         'tipo': tipo,
