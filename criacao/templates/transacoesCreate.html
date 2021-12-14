@@ -1,0 +1,9 @@
+<body>
+    <h1>Adicionar Transação</h1>
+    <p>Insira os dados da cabeça a ser adicionada:</p>
+    <form method="post">{% csrf_token %}
+        <label>Listas de IDs</label>
+        {{ form.as_p }}
+        <input type="submit" value="Save">
+    </form>
+</body>

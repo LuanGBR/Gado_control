@@ -106,6 +106,8 @@ class transacao(models.Model):
     valor = FloatField()
     envolvido = CharField(max_length=32)
     data = DateField()
+    tags = CharField(max_length=100)
+    observacoes = CharField(max_length=100)
 
 class cabeca_transacionada(models.Model):
     id = AutoField(primary_key=True)

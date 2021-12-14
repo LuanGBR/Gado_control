@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from criacao.models import cabecagado
 
-from criacao.views import CabecaListView, HomeView, LandView, LoginView, Criar_cabeça, DetailView, TransacaoList, TransacaoDetail
+from criacao.views import CabecaListView, HomeView, LandView, LoginView, Criar_cabeça, DetailView, TransacaoList, TransacaoDetail, TransacaoCreate, TransacaoEdit
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,5 +28,7 @@ urlpatterns = [
     path("add/cabeca",Criar_cabeça),
     path("<pk>/view",DetailView, name="detail"),
     path("transacoes",TransacaoList, name="transacoes"),
-    path("transacoes/<pk>",TransacaoDetail, name="transacoesDetail")
+    path("transacoes/<pk>/view",TransacaoDetail, name="transacoesDetail"),
+    path("add/transacao",TransacaoCreate, name="transacoesCreate"),
+    path("edit/transacao/<pk>",TransacaoEdit, name="transacaoEdit")
 ]
