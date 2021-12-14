@@ -3,6 +3,8 @@ from django.forms import ModelForm
 from django import forms
 from django.forms import widgets
 from django.forms.widgets import TextInput,CheckboxInput
+from django.forms.fields import DateField
+from Gado_control.settings import DATE_INPUT_FORMATS
 from .models import brinco, cabecagado, cria, vacinas,transacao
 import datetime
 
@@ -48,3 +50,9 @@ class TransacaoCreateForm(ModelForm):
             'data':DateInput(),
             'valor':NumberInput()
         }
+
+class CabecagadoEditForm(ModelForm):
+    nascimento =  DateField(input_formats=DATE_INPUT_FORMATS)
+    class Meta:
+        model = cabecagado
+        fields = ["tipo","sexo","n_etiqueta", "brinco", "observacoes","vendido","esta_vivo","morte","causa_mortis"]

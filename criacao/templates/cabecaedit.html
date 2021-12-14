@@ -1,0 +1,15 @@
+<body>
+    </form>
+    {{ mensagem }}
+    <form method="post">{% csrf_token %}
+        <input type="hidden" name="tipo" value="{{ tipo }}">
+        {{ form.as_p }}
+        {{ form_.as_p }}
+        <b>Vacinas:</b>
+        {{ form_vac.as_p }}
+        {{ form_pesos.as_p}}
+        <input type="submit" value="Save">
+    </form>
+    <a href="{% url 'cabecas' %}">Voltar</a>
+    <a href="{% url 'home' %}">Home</a>
+</body>

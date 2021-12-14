@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
 from django.views.generic.edit import CreateView
-from criacao.forms import CabecagadoCreateForm, CriaCreateForm, PesosCreateForm, VacinasCreateForm, TransacaoCreateForm
+from criacao.forms import CabecagadoCreateForm, CriaCreateForm, PesosCreateForm, VacinasCreateForm, TransacaoCreateForm, CabecagadoEditForm
 
 from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas
 
@@ -316,7 +316,8 @@ def Criar_cabeça(request):
         cabeca.save()
         ficha = ficha_medica()
         ficha.cabecagado = cabeca
-        ficha.pesos_timeseries = request.POST.get("timeseries")
+        if  request.POST.get("timeseries"):
+            ficha.pesos_timeseries = request.POST.get("timeseries")
         ficha.save()
         vac = vacinas()
         vac.ficha_medica = ficha
@@ -343,3 +344,77 @@ def Criar_cabeça(request):
         obj.save()
         return redirect(f"/cabeca/{cabeca.id}/view")
 
+def EditView(request,pk):
+    if request.method=="GET":
+        context={}
+        cabeca = cabecagado.objects.get(id=pk)
+        initial = {"nascimento":cabeca.nascimento,
+                   "tipo" : cabeca.tipo,
+                   "sexo": cabeca.sexo,
+                   "n_etiqueta":cabeca.n_etiqueta,
+                   "brinco":cabeca.brinco,
+                   "esta_vivo":cabeca.esta_vivo,
+                   "vendido":cabeca.vendido,
+                   "observacoes":cabeca.observacoes,
+                    "morte":cabeca.morte,
+                    "causa_mortis":cabeca.causa_mortis
+                   }
+        context["form"] = CabecagadoEditForm(initial=initial)
+        if cabeca.tipo == "Boi":
+            opt = 1
+            context["form"].fields["tipo"].disabled = True
+        elif cabeca.tipo == "Bezerro":
+            opt = 3
+            context["form_"] = CriaCreateForm(initial={"matriz":cabeca.cria.matriz})
+        elif cabeca.tipo == "Vaca":
+            context["form"].fields["tipo"].disabled = True
+            opt = 2
+        context["form"].fields["tipo"].disabled = True
+        context["form_vac"] = VacinasCreateForm()
+        context["form_pesos"] = PesosCreateForm()
+        context["mensagem"]="Editando " + ["touro ","vaca ","bezerro "][opt-1] + str(cabeca)
+        context["tipo"]=str(opt)
+        return render(request,"cabecaedit.html",context)
+    if request.method == "POST":
+        s = request.POST.get("tipo")
+        cabeca = cabecagado.objects.get(id=pk)
+        cabeca.n_etiqueta = request.POST.get("n_etiqueta")
+        cabeca.brinco = brinco.objects.get(id=request.POST.get("brinco"))
+        data = datetime.datetime.strptime(str(request.POST.get("nascimento")), '%d/%m/%Y')
+        cabeca.nascimento = data
+        if request.POST.get("esta_vivo") == "on":
+            cabeca.esta_vivo = True
+        else:
+            cabeca.esta_vivo = False
+        if request.POST.get("vendido") == "on":
+            cabeca.vendido = True
+        else:
+            cabeca.vendido = False
+        cabeca.observacoes = request.POST.get("observacoes")
+        if request.POST.get("morte"):
+            morte = datetime.datetime.strptime(str(request.POST.get("morte")), '%d/%m/%Y')
+            cabeca.morte = morte
+        cabeca.causa_mortis = request.POST.get("causa_mortis")
+        if request.POST.get("sexo"):
+            cabeca.sexo = request.POST.get("sexo")
+        cabeca.author = get_user(request)
+        cabeca.save()
+        ficha = ficha_medica.objects.get(cabecagado_id=pk)
+        ficha.cabecagado = cabeca
+        if  request.POST.get("timeseries"):
+            ficha.pesos_timeseries = request.POST.get("timeseries")
+        ficha.save()
+        vac = vacinas.objects.get(ficha_medica_id=pk)
+        vac.febre_aftosa = bool(request.POST.get("febre_aftosa"))
+        vac.brucelose = bool(request.POST.get("brucelose"))
+        vac.clostridioses = bool(request.POST.get("clostridioses"))
+        vac.botulismo = bool(request.POST.get("botulismo"))
+        vac.leptospirose = bool(request.POST.get("leptospirose"))
+        vac.raiva = bool(request.POST.get("raiva"))
+        vac.ibr_bvd = bool(request.POST.get("ibr_bvd"))
+        vac.save()
+        if s =="3":
+            obj = cria.objects.get(cabecagado_id=pk)
+            obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
+            obj.save()
+        return redirect(f"/cabeca/{cabeca.id}/view")
