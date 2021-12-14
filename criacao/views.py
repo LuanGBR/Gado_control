@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
 from django.views.generic.edit import CreateView
-from criacao.forms import CabecagadoCreateForm, CriaCreateForm, PesosCreateForm, VacinasCreateForm
+from criacao.forms import CabecagadoCreateForm, CriaCreateForm, PesosCreateForm, VacinasCreateForm, TransacaoCreateForm
 
 from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas
 

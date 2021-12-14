@@ -2,8 +2,8 @@ from django.db.models import fields
 from django.forms import ModelForm
 from django import forms
 from django.forms import widgets
-from django.forms.widgets import TextInput
-from .models import brinco, cabecagado, cria, vacinas
+from django.forms.widgets import TextInput,CheckboxInput
+from .models import brinco, cabecagado, cria, vacinas,transacao
 import datetime
 
 class DateInput(forms.DateInput):
