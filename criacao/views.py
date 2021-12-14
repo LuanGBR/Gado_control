@@ -1,3 +1,4 @@
+from django.core import validators
 from django.http.response import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
@@ -13,6 +14,7 @@ import datetime
 
 def DetailView(request, pk):
     tipo = cabecagado.objects.get(id=pk).tipo
+    identificacao = cabecagado.__str__(cabecagado.objects.get(id=pk))
     if( tipo == "Boi"):
         context = {'id':pk,
         'tipo' : tipo,
@@ -24,6 +26,7 @@ def DetailView(request, pk):
     elif(tipo == "Bezerro"):
         context = {'id':pk,
         'tipo' : tipo,
+        'identificacao':identificacao,
         'matriz': cria.objects.get(cabecagado_id=pk).matriz_id,
         'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
         'datas':ficha_medica.objects.get(cabecagado_id=pk).datas,
@@ -42,9 +45,9 @@ def DetailView(request, pk):
  #       for i in range(len(nascimentos_crias)):
  #           somatoria += nascimentos_crias[i+1] - nascimentos_crias[i]
  #       tempo_crias = somatoria/len(nascimentos_crias)
-
         context = {'id':pk,
         'tipo' : tipo,
+        'identificacao':identificacao,
  #       'nascimentos_crias':nascimentos_crias,
         'gestacoes': str(cria.objects.filter(matriz_id = pk).count()),
         'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
@@ -53,27 +56,90 @@ def DetailView(request, pk):
         'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
         return render(request,"detailview.html",context)
 
-def TransacaoCreate(request):
+def TransacaoEdit(request,pk):
+    if request.method == "GET":
+        context = {}
+        context['form'] = TransacaoCreateForm()
+        return render(request, "transacoesEdit.html",context)
+    if request.method =="POST":
+        t = transacao()
+        t.id = pk
+        stringTransacao = request.POST.get('tags')
+        cabecas_transacionadas = str(stringTransacao).split(",")
+        array_cabecas = [cabeca_transacionada() for i in range(len(cabecas_transacionadas))]
+        t.valor = request.POST.get('valor')
+        t.envolvido = request.POST.get('envolvido')
+        t.data = request.POST.get('data')
+        t.tags = stringTransacao
+        checkTipo = request.POST.get('tipo')
+        if checkTipo == "on":
+            t.tipo = True
+        else:
+            t.tipo = False
+        t.save()
+        antigoRegistro = cabeca_transacionada.objects.filter(transacao_id=pk).delete()
+        for i in range(len(array_cabecas)):
+            array_cabecas[i].transacao_id = pk
+            array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id            
+            array_cabecas[i].save()
+        return redirect(f"/transacoes/{t.id}/view")
 
-    pass
+def TransacaoCreate(request):
+    if request.method == "GET":
+        context = {}
+        context['form'] = TransacaoCreateForm()
+        return render(request, "transacoesCreate.html",context)
+    if request.method =="POST":
+        t = transacao()
+        stringTransacao = request.POST.get('tags')
+        cabecas_transacionadas = str(stringTransacao).split(",")
+        array_cabecas = [cabeca_transacionada() for i in range(len(cabecas_transacionadas))]
+        t.valor = request.POST.get('valor')
+        t.envolvido = request.POST.get('envolvido')
+        t.data = request.POST.get('data')
+        t.tags = stringTransacao
+        checkTipo = request.POST.get('tipo')
+        if checkTipo == "on":
+            t.tipo = True
+        else:
+            t.tipo = False
+        t.save()
+        for i in range(len(array_cabecas)):
+            array_cabecas[i].transacao_id = t.id
+            array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
+            array_cabecas[i].save()
+        return redirect(f"/transacoes/{t.id}/view")
+
 
 def TransacaoList(request):
     context = {"transacoes":transacao.objects.all()}
     return render(request,"transacaoList.html", context)
 
 def TransacaoDetail(request, pk):
+    transacionadas = []
+    transacionadas = cabeca_transacionada.objects.filter(transacao_id = pk)
+    tags = []
+    for i in transacionadas:
+       # tags.append(str(i.cabecagado_id))
+        tags.append(str(cabecagado.__str__(cabecagado.objects.get(id=pk))))
+        if i != transacionadas[len(transacionadas)-1]:
+            tags.append(", ")
+    tags = "".join(tags)
+    identificacao = cabecagado.__str__(cabecagado.objects.get(id=pk))
+    tipo = transacao.objects.get(id=pk).tipo
+    if tipo == True:
+        tipo = "Venda"
+    elif tipo == False:
+        tipo = "Compra"
     context = {
         'id': pk,
-        'tipo': transacao.objects.get(id=pk).tipo,
+        'tipo': tipo,
         'valor': transacao.objects.get(id=pk).valor,
         'data': transacao.objects.get(id=pk).data,
         'envolvido': transacao.objects.get(id=pk).envolvido,
+        'tags': tags
     }
     return render(request,"transacoesDetail.html", context)
-
-def TransacaoConfirm(request):
-
-    pass
 
 # Create your views here.
 def LoginView(request):
@@ -218,9 +284,6 @@ def CabecaListView(request):
             final_set = final_set.order_by('-nascimento')
         context["cabecas"] = final_set
         
-
-        
-
         return render(request,"cabecaslist.html",context)
     
 
