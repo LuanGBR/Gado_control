@@ -10,6 +10,7 @@ from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, 
 
 import plotly.graph_objects as go
 import datetime 
+from datetime import timedelta
 
 
 def DetailView(request, pk):
@@ -28,30 +29,32 @@ def DetailView(request, pk):
         'tipo' : tipo,
         'identificacao':identificacao,
         'matriz': cria.objects.get(cabecagado_id=pk).matriz_id,
-        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
-        'datas':ficha_medica.objects.get(cabecagado_id=pk).datas,
+        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes':cabecagado.objects.get(id=pk).observacoes,
         'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
         return render(request,"detailview.html",context)
 
     else:
-         
-  #      ids = []
- #       nascimentos_crias = []
- #       somatoria = datetime()
- #       crias = cria.objects.filter(matriz_id = pk)
- #       for c in crias:
- #           nascimentos_crias.append(cabecagado.objects.get(id = c.cabecagado_id).nascimento)
- #       for i in range(len(nascimentos_crias)):
- #           somatoria += nascimentos_crias[i+1] - nascimentos_crias[i]
- #       tempo_crias = somatoria/len(nascimentos_crias)
+        nascimentos_crias = []
+        crias = cria.objects.filter(matriz_id = pk)
+        for c in crias:
+            nascimentos_crias.append(cabecagado.objects.get(id = c.cabecagado_id).nascimento)
+        numdeltas = len(nascimentos_crias)-1
+        sumdeltas = timedelta(seconds=0)
+        if len(nascimentos_crias) > 1:
+            for i in range(len(nascimentos_crias)-1):
+                delta = abs(nascimentos_crias[i+1] - nascimentos_crias[i])
+                sumdeltas += delta
+            media = sumdeltas/numdeltas
+        else:
+            media = 0
         context = {'id':pk,
         'tipo' : tipo,
         'identificacao':identificacao,
- #       'nascimentos_crias':nascimentos_crias,
-        'gestacoes': str(cria.objects.filter(matriz_id = pk).count()),
-        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
-        'datas':ficha_medica.objects.get(cabecagado_id=pk).datas,
+        'nascimentos_crias':nascimentos_crias,
+        'tempo_crias':media,
+        'gestacoes': str(cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id).count()),
+        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes':cabecagado.objects.get(id=pk).observacoes,
         'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
         return render(request,"detailview.html",context)
@@ -78,7 +81,7 @@ def TransacaoEdit(request,pk):
             array_cabecas[i].transacao_id = pk
             array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id            
             array_cabecas[i].save()
-        return redirect(f"/transacoes/{t.id}/view")
+        return redirect(f"/transacao/{t.id}/view")
 
 def TransacaoCreate(request):
     if request.method == "GET":
@@ -100,7 +103,7 @@ def TransacaoCreate(request):
             array_cabecas[i].transacao_id = t.id
             array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
             array_cabecas[i].save()
-        return redirect(f"/transacoes/{t.id}/view")
+        return redirect(f"/transacao/{t.id}/view")
 
 
 def TransacaoList(request):
@@ -338,5 +341,5 @@ def Criar_cabeça(request):
             obj.cabecagado = cabeca
             obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
         obj.save()
-        return redirect(f"/{cabeca.id}/view")
+        return redirect(f"/cabeca/{cabeca.id}/view")
 

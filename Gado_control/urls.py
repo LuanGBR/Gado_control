@@ -24,11 +24,11 @@ urlpatterns = [
     path("login",LoginView,name="login"),
     path("",LandView),
     path("home",HomeView,name="home"),
-    path("list",CabecaListView, name="list"),
-    path("add/cabeca",Criar_cabeça),
-    path("<pk>/view",DetailView, name="detail"),
-    path("transacoes",TransacaoList, name="transacoes"),
-    path("transacoes/<pk>/view",TransacaoDetail, name="transacoesDetail"),
-    path("add/transacao",TransacaoCreate, name="transacoesCreate"),
-    path("edit/transacao/<pk>",TransacaoEdit, name="transacaoEdit")
+    path("cabeca/list",CabecaListView, name="cabecas"),
+    path("cabeca/add",Criar_cabeça, name="addCabeca"),
+    path("cabeca/<pk>/view",DetailView, name="detail"),
+    path("transacao/list",TransacaoList, name="transacoes"),
+    path("transacao/<pk>/view",TransacaoDetail, name="transacoesDetail"),
+    path("transacao/add",TransacaoCreate, name="transacoesCreate"),
+    path("transacao/<pk>/edit",TransacaoEdit, name="transacaoEdit")
 ]

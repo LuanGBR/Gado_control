@@ -1,7 +1,7 @@
 <body>
     <h1>Transações:</h1>
     {% for t in transacoes %}
-    <a href="transacoes/{{t.id}}/view">Transação do dia: {{t.data}} || Negocida com: {{t.envolvido}}</a>
+    <a href="/transacao/{{t.id}}/view">Transação do dia: {{t.data}} || Negocida com: {{t.envolvido}}</a>
     <BR><BR>
     {% endfor %}
     <a href="{% url 'home' %}">Home</a>

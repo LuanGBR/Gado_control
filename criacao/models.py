@@ -73,8 +73,8 @@ class matriz(models.Model):
     id = AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
 
-   # def __str__(self):
-    #    return  str(self.cabecagado.n_etiqueta) + "/" + str(self.cabecagado.brinco)
+    def __str__(self):
+        return  str(self.cabecagado.n_etiqueta) + "/" + str(self.cabecagado.brinco)
 
 class cria(models.Model):
     id = AutoField(primary_key=True)
@@ -84,7 +84,7 @@ class cria(models.Model):
 class ficha_medica(models.Model):
     id=AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
-    pesos_timeseries = CharField(max_length=2048,default="")
+    pesos_timeseries = CharField(max_length=2048,default="", null=True)
 
 class vacinas(models.Model):
     id = AutoField(primary_key=True)

@@ -22,6 +22,12 @@
                 Já teve {{gestacoes}} gestações
             </li>
             {% endif %}
+            {% if tempo_crias%}
+            <li>
+                O intervalo médio entre gestações é de {{tempo_crias}}.
+            </li>
+            
+            {% endif %}
             {% if matriz %}
             <li>
                 Matriz: #{{matriz}}
@@ -32,5 +38,7 @@
         <br>
         {{observacoes}}
         <BR>
-        <a href="{% url 'list' %}">Voltar</a>
+        <a href="{% url 'cabecas' %}">Voltar</a>
+        <a href="{% url 'home' %}">home</a>
+        
 </body>

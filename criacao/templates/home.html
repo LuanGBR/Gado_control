@@ -3,6 +3,9 @@
     <div style="height :400px; width: 100%">
         {{graph | safe}}
     </div> 
+    <a href="{% url 'cabecas' %}">Cabeças de gado</a>
+    <BR>
+    <a href="{% url 'transacoes' %}">Transações</a>
     {% for transacao,descricao in transacoes_descricoes%}
     <li><a href="/transacao/{{transacao.id}}/view">{{descricao}}</a></li>
     {% endfor %}
