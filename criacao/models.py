@@ -84,8 +84,7 @@ class cria(models.Model):
 class ficha_medica(models.Model):
     id=AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
-    pesos = CharField(max_length=1024,null=True,default="")
-    datas = CharField(max_length=1024,null=True,default="")
+    pesos_timeseries = CharField(max_length=2048,default="")
 
 class vacinas(models.Model):
     id = AutoField(primary_key=True)

@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
 from django.views.generic.edit import CreateView
-from criacao.forms import CabecagadoCreateForm, CriaCreateForm, TransacaoCreateForm
+from criacao.forms import CabecagadoCreateForm, CriaCreateForm, PesosCreateForm, VacinasCreateForm, TransacaoCreateForm
 
 from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas
 
@@ -18,9 +18,7 @@ def DetailView(request, pk):
     if( tipo == "Boi"):
         context = {'id':pk,
         'tipo' : tipo,
-        'identificacao':identificacao,
-        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos,
-        'datas':ficha_medica.objects.get(cabecagado_id=pk).datas,
+        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes':cabecagado.objects.get(id=pk).observacoes,
         'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
         return render(request,"detailview.html",context)
@@ -154,11 +152,11 @@ def HomeView(request):
         transacoes = transacao.objects.order_by("data")[:5]
         descricoes = []
         for t in transacoes:
-            n = cabeca_transacionada.objects.filter(cabecagado__transacao=t).count()
-            descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
+             n = cabeca_transacionada.objects.filter(transacao=t).count()
+             descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
         context = {"n_matrizes": matriz.objects.filter(cabecagado__esta_vivo=True).count(),
                    "n_crias": cria.objects.filter(cabecagado__esta_vivo=True).count(),
-                   "transacoes_descricoes":  zip(transacoes,descricoes)
+                  "transacoes_descricoes":  zip(transacoes,descricoes)
                    }
         meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
         hoje = datetime.date.today()
@@ -284,28 +282,51 @@ def Criar_cabeça(request):
             opt =int(request.GET.get("Tipo"))
             sel = ["boi_sel","vaca_sel","bezerro_sel"][opt-1]
             context["form"] = CabecagadoCreateForm(initial={"nascimento":datetime.date.today().strftime("%d/%m/%Y")})
-            if opt == 3:
+            if opt == 1:
+                context["form"].fields["sexo"].disabled = True
+                context["form"].fields["sexo"].initial = cabecagado.MALE
+            elif opt == 2:
+                context["form"].fields["sexo"].disabled = True
+                context["form"].fields["sexo"].initial = cabecagado.FEMALE
+            elif opt == 3:
                 context["form_"] = CriaCreateForm()
+            context["form_vac"] = VacinasCreateForm()
+            context["form_pesos"] = PesosCreateForm()
             context["mensagem"]="Adicionando " + ["novo touro:","nova vaca:","novo bezerro:"][opt-1]
         context[sel]="selected"
         context["tipo"]=str(opt)
         return render(request,"cabecacreate.html",context)
     if request.method=="POST":
+        s = request.POST.get("tipo")
         cabeca = cabecagado()
         cabeca.n_etiqueta = request.POST.get("n_etiqueta")
         cabeca.brinco = brinco.objects.get(id=request.POST.get("brinco"))
         cabeca.nascimento = request.POST.get("nascimento")
-        cabeca.sexo = request.POST.get("sexo")
+        if s == "1":
+            cabeca.sexo = cabecagado.MALE
+        elif s == "2":
+            cabeca.sexo = cabecagado.FEMALE
+        elif s == "3":
+            cabeca.sexo = request.POST.get("sexo")
         cabeca.tipo = [cabecagado.BOI,cabecagado.MATRIZ,cabecagado.CRIA][int(request.POST.get("tipo"))-1]
         cabeca.author = get_user(request)
         cabeca.save()
         ficha = ficha_medica()
         ficha.cabecagado = cabeca
+        ficha.pesos_timeseries = request.POST.get("timeseries")
         ficha.save()
         vac = vacinas()
         vac.ficha_medica = ficha
+        vac.febre_aftosa = bool(request.POST.get("febre_aftosa"))
+        vac.brucelose = bool(request.POST.get("brucelose"))
+        vac.clostridioses = bool(request.POST.get("clostridioses"))
+        vac.botulismo = bool(request.POST.get("botulismo"))
+        vac.leptospirose = bool(request.POST.get("leptospirose"))
+        vac.raiva = bool(request.POST.get("raiva"))
+        vac.ibr_bvd = bool(request.POST.get("ibr_bvd"))
+        vac.ficha_medica = ficha
         vac.save()
-        s = request.POST.get("tipo")
+
         if s == "1":
             obj = boi()
             obj.cabecagado = cabeca

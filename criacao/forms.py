@@ -2,8 +2,8 @@ from django.db.models import fields
 from django.forms import ModelForm
 from django import forms
 from django.forms import widgets
-from django.forms.widgets import CheckboxInput, TextInput
-from .models import brinco, cabecagado, cria, transacao
+from django.forms.widgets import TextInput,CheckboxInput
+from .models import brinco, cabecagado, cria, vacinas,transacao
 import datetime
 
 class DateInput(forms.DateInput):
@@ -15,7 +15,7 @@ class NumberInput(forms.NumberInput):
 class CabecagadoCreateForm(ModelForm):
     class Meta:
         model = cabecagado
-        fields = ["n_etiqueta", "brinco","nascimento","sexo"]
+        fields = ["sexo","n_etiqueta", "brinco","nascimento",]
         widgets = {
         'n_etiqueta': NumberInput(),
         'nascimento':DateInput()
@@ -25,6 +25,14 @@ class CriaCreateForm(ModelForm):
     class Meta:
         model = cria
         fields = ['matriz']
+
+class VacinasCreateForm(ModelForm):
+    class Meta:
+        model = vacinas
+        fields = ("febre_aftosa", "brucelose", "clostridioses", "botulismo", "leptospirose", "raiva", "ibr_bvd")
+
+class PesosCreateForm(forms.Form):
+    timeseries = forms.TextInput()
 
 class TransacaoCreateForm(ModelForm):
     class Meta:
