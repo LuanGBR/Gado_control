@@ -122,24 +122,47 @@ def TransacaoCreate(request):
             return render(request, "transacoesCreate.html",context)
         if request.method =="POST":
             t = transacao()
-            stringTransacao = request.POST.get('tags')
-            cabecas_transacionadas = str(stringTransacao).split(",")
-            array_cabecas = [cabeca_transacionada() for i in range(len(cabecas_transacionadas))]
+            stringTransacao = request.POST.get('gados')
+            gados_compra = str(stringTransacao).split('\r\n')
+            array_cabecas = [cabeca_transacionada() for i in range(len(gados_compra))]
             t.valor = request.POST.get('valor')
             t.envolvido = request.POST.get('envolvido')
             t.data = request.POST.get('data')
-            t.tags = stringTransacao
             t.tipo = request.POST.get('tipo')
             t.save()
-            #if tipo == "Compra":
-            #    pass
-            #elif tipo == "Venda":
-            #    for
-
-            for i in range(len(array_cabecas)):
-                array_cabecas[i].transacao_id = t.id
-                array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
-                array_cabecas[i].save()
+            if t.tipo == "Compra":
+                i = 0
+                for c in gados_compra:
+                    atributos = c.split(',') #ordem: n_etiqueta, nascimento, sexo, tipo, brinco_id
+                    gado = cabecagado()
+                    gado.n_etiqueta = str(atributos[0])
+                    gado.nascimento = str(atributos[1])
+                    gado.tipo = str(atributos[3])
+                    if gado.tipo == "Vaca":
+                        gado.sexo = "Fêmea"
+                    elif gado.tipo == "Boi":
+                        gado.sexo = "Macho"
+                    else:
+                        gado.sexo = str(atributos[2])
+                    gado.brinco_id = int(atributos[4])
+                    gado.author_id = get_user(request).id
+                    gado.save()
+                    array_cabecas[i].transacao_id = t.id
+                    array_cabecas[i].cabecagado_id = gado.id
+                    array_cabecas[i].save()
+                    i+=1
+                     #   n_etiqueta, nascimento, sexo, tipo, brinco_id
+            elif t.tipo == "Venda":
+                i = 0
+                for v in gados_compra:
+                    identificacao = v.split('/') #n_etiqueta/n_brinco
+                    gado = cabecagado.objects.get(n_etiqueta = str(identificacao[0]),brinco_id = str(identificacao[1]))
+                    gado.vendido = 1
+                    gado.save()
+                    array_cabecas[i].transacao_id = t.id
+                    array_cabecas[i].cabecagado_id = gado.id
+                    array_cabecas[i].save()
+                    i+=1
             return redirect(f"/transacao/{t.id}/view")
     else:
         return redirect(f"/login")
@@ -147,7 +170,6 @@ def TransacaoCreate(request):
 
 def TransacaoList(request):
     if request.user.is_authenticated:
-        #context = {"transacoes":transacao.objects.all()}
         transacoes = transacao.objects.all()
         transacoes_list = []
         for t in transacoes:
@@ -262,7 +284,6 @@ def HomeView(request):
 
 
 def CabecaListView(request):
-    if request.user.is_authenticated:
         if request.method == "GET":
             boi_checked = False
             matriz_checked = False
@@ -331,8 +352,7 @@ def CabecaListView(request):
             resposta = json.dumps(resposta,indent=4)
 
             return HttpResponse(resposta)
-    else:
-        return redirect(f"/login")
+
 
 
 def Criar_cabeça(request):
