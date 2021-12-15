@@ -9,9 +9,9 @@ from criacao.forms import CabecagadoCreateForm, CriaCreateForm, PesosCreateForm,
 from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas
 
 from django.contrib.auth.decorators import login_required
-
+from django.core import serializers
 import plotly.graph_objects as go
-import datetime 
+import datetime
 from datetime import timedelta
 import json
 
@@ -63,7 +63,7 @@ def DetailView(request, pk):
             'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
             return render(request,"detailview.html",context)
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoEdit(request,pk):
@@ -87,11 +87,11 @@ def TransacaoEdit(request,pk):
             antigoRegistro = cabeca_transacionada.objects.filter(transacao_id=pk).delete()
             for i in range(len(array_cabecas)):
                 array_cabecas[i].transacao_id = pk
-                array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id            
+                array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
                 array_cabecas[i].save()
             return redirect(f"/transacao/{t.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoCreate(request):
@@ -117,7 +117,7 @@ def TransacaoCreate(request):
                 array_cabecas[i].save()
             return redirect(f"/transacao/{t.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoList(request):
@@ -125,7 +125,7 @@ def TransacaoList(request):
         context = {"transacoes":transacao.objects.all()}
         return render(request,"transacaoList.html", context)
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoDetail(request, pk):
@@ -149,15 +149,15 @@ def TransacaoDetail(request, pk):
         }
         return render(request,"transacoesDetail.html", context)
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
-def LoginView(request):    
+def LoginView(request):
     if request.method =="GET":
         return render(request,"login.html")
     if request.method =="POST":
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
@@ -184,6 +184,10 @@ def HomeView(request):
         for u,v in zip(map(lambda x: x.id, transacoes),descricoes):
             transacoes_list.append({"id":u,"descricão":v})
 
+            layout=go.Layout(title="Bezerros prontos para desmame (próximos meses)", yaxis={'title':'Número de bezerros'})
+            figure=go.Figure(data=[trace1,trace2],layout=layout)
+    
+            context['graph'] = figure.to_html(full_html=False)
 
         meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
         hoje = datetime.date.today()
@@ -230,8 +234,9 @@ def HomeView(request):
         return HttpResponseNotFound("") 
         
 
+
 def CabecaListView(request):
-    if request.user.is_authenticated:
+    # if request.user.is_authenticated:
         if request.method == "GET":
             boi_checked = False
             matriz_checked = False
@@ -281,7 +286,7 @@ def CabecaListView(request):
                    "category":category_filter,
                    "category_text": category_text
                    }
-        
+
             if category_filter == "ativos":
                 status_set = cabecagado.objects.filter(esta_vivo=True)&cabecagado.objects.filter(vendido=False)
             elif category_filter == "mortos":
@@ -310,11 +315,14 @@ def CabecaListView(request):
             else:
                 final_set = final_set.order_by('-nascimento')
             context["cabecas"] = final_set
-        
-            return render(request,"cabecaslist.html",context)
-    else:
-        return redirect(f"/login")           
-    
+
+            set_json = serializers.serialize("json",final_set)
+
+            return HttpResponse(set_json,content_type='aplication/json')
+
+    # else:
+    #     return redirect(f"/login")
+
 
 def Criar_cabeça(request):
     if request.user.is_authenticated:
@@ -384,8 +392,11 @@ def Criar_cabeça(request):
             obj.save()
             return redirect(f"/cabeca/{cabeca.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
+
 def EditView(request,pk):
+<<<<<<< HEAD
+<<<<<<< HEAD
     if request.method=="GET":
         context={}
         cabeca = cabecagado.objects.get(id=pk)
@@ -417,45 +428,53 @@ def EditView(request,pk):
         context["tipo"]=str(opt)
         return render(request,"cabecaedit.html",context)
     if request.method == "POST":
-        cabeca = cabecagado.objects.get(id=pk)
-        s = request.POST.get("tipo")
-        cabeca.n_etiqueta = request.POST.get("n_etiqueta")
-        cabeca.brinco = brinco.objects.get(id=request.POST.get("brinco"))
+        cabeca = cabecagado.objects.get(id=pk)  #Puxa a cabeca do tabela cabecagado pelo ID
+        s = str(request.POST.get("tipo"))            #Pega o novo tipo
+        cabeca.n_etiqueta = request.POST.get("n_etiqueta")  #Define o novo número da etiqueta para a cabeca
+        cabeca.brinco = brinco.objects.get(id=str(request.POST.get("brinco")))   
+        #data = datetime.datetime.strptime(str(request.POST.get("nascimento")), '%d/%m/%Y')
+        data = request.POST.get("nascimento")
         cabeca.nascimento = data
-        data = datetime.datetime.strptime(str(request.POST.get("nascimento")), '%d/%m/%Y')
-        if request.POST.get("esta_vivo") == "on":
+        checkBoxVivo = str(request.POST.get("esta_vivo"))
+        checkBoxVendido = request.POST.get("vendido")
+        if checkBoxVivo == 'on':
             cabeca.esta_vivo = True
         else:
-        if request.POST.get("vendido") == "on":
+            #morte = datetime.datetime.strptime(str(request.POST.get("morte")), '%d/%m/%Y')
+            morte = request.POST.get("morte")
+            cabeca.morte = morte
+            cabeca.causa_mortis = str(request.POST.get("causa_mortis"))
+        if checkBoxVendido == 'on':
             cabeca.esta_vivo = False
-            cabeca.vendido = True
+            cabeca.vendido = True        
         else:
             cabeca.vendido = False
         cabeca.observacoes = request.POST.get("observacoes")
-            morte = datetime.datetime.strptime(str(request.POST.get("morte")), '%d/%m/%Y')
-        if request.POST.get("morte"):
-            cabeca.morte = morte
-        cabeca.causa_mortis = request.POST.get("causa_mortis")
-            cabeca.sexo = request.POST.get("sexo")
-        if request.POST.get("sexo"):
+        cabeca.sexo = request.POST.get("sexo")
         cabeca.author = get_user(request)
-        ficha = ficha_medica.objects.get(cabecagado_id=pk)
         cabeca.save()
+        ficha = ficha_medica.objects.get(cabecagado_id=pk)
         ficha.cabecagado = cabeca
-            ficha.pesos_timeseries = request.POST.get("timeseries")
-        if  request.POST.get("timeseries"):
+        ficha.pesos_timeseries = request.POST.get("timeseries")
         ficha.save()
-        vac = vacinas.objects.get(ficha_medica_id=pk)
+        vac = vacinas.objects.get(ficha_medica_id=int(ficha_medica.objects.get(cabecagado_id=pk).id))
         vac.febre_aftosa = bool(request.POST.get("febre_aftosa"))
         vac.brucelose = bool(request.POST.get("brucelose"))
         vac.botulismo = bool(request.POST.get("botulismo"))
         vac.clostridioses = bool(request.POST.get("clostridioses"))
         vac.raiva = bool(request.POST.get("raiva"))
         vac.leptospirose = bool(request.POST.get("leptospirose"))
-        vac.save()
         vac.ibr_bvd = bool(request.POST.get("ibr_bvd"))
-        if s =="3":
+        vac.save()
+        
+        if s =="Bezerro":
             obj = cria.objects.get(cabecagado_id=pk)
             obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
             obj.save()
         return redirect(f"/cabeca/{cabeca.id}/view")
+=======
+    pass
+>>>>>>> test integration
+=======
+    pass
+>>>>>>> integration with build

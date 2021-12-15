@@ -52,7 +52,10 @@ class TransacaoCreateForm(ModelForm):
         }
 
 class CabecagadoEditForm(ModelForm):
-    nascimento =  DateField(input_formats=DATE_INPUT_FORMATS)
     class Meta:
         model = cabecagado
-        fields = ["tipo","sexo","n_etiqueta", "brinco", "observacoes","vendido","esta_vivo","morte","causa_mortis"]
+        fields = ["tipo","sexo","n_etiqueta","nascimento","brinco", "observacoes","vendido","esta_vivo","morte","causa_mortis"]
+        widgets = {
+            'nascimento': DateInput(),
+            'morte': DateInput()
+        }
