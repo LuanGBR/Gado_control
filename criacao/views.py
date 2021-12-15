@@ -265,11 +265,11 @@ def CabecaListView(request):
     if request.user.is_authenticated:
         if request.method == "GET":
             brincos_set = cabecagado.objects.all()
-            if request.GET.get("boi_checked"):
+            if request.GET.get("boi_checked") == "1":
                 boi_checked = True
-            if request.GET.get("matriz_checked"):
+            if request.GET.get("matriz_checked") == "1":
                 matriz_checked = True
-            if not request.GET.get("cria_checked"):
+            if not request.GET.get("cria_checked") == "1":
                 cria_checked = False
             if request.GET.get("cor") != "all":
                 brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
@@ -485,3 +485,7 @@ def EditView(request,pk):
             obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
             obj.save()
         return redirect(f"/cabeca/{cabeca.id}/view")
+
+def get_brincosView(request):
+    if request.method == "GET":
+        return serializers('json',brinco.objects.all())
