@@ -181,8 +181,8 @@ def HomeView(request):
             n = cabeca_transacionada.objects.filter(transacao=t).count()
             descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
         transacoes_list=[]
-        for u,v in zip(map(lambda x: x.id, transacoes),descricoes):
-            transacoes_list.append({"id":u,"descricão":v})
+        for u,v in zip(transacoes,descricoes):
+            transacoes_list.append({"id":u.id,"descricão":v,"valor":u.valor,"tipo":u.tipo,"data":str(u.data)})
 
 
         meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
