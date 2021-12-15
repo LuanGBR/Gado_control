@@ -14,6 +14,7 @@ import plotly.graph_objects as go
 import datetime 
 from django.core import serializers
 from datetime import timedelta
+import json
 
 
 def DetailView(request, pk):
@@ -180,52 +181,57 @@ def LandView(request):
 
 
 def HomeView(request):
-    if request.user.is_authenticated:
-        user = get_user(request)
-        if request.method =="GET":
-            if user.is_anonymous:
-                return redirect("login")
-            transacoes = transacao.objects.order_by("data")[:5]
-            descricoes = []
-            for t in transacoes:
-                n = cabeca_transacionada.objects.filter(transacao=t).count()
-                descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
-            context = {"n_matrizes": matriz.objects.filter(cabecagado__esta_vivo=True).count(),
-                   "n_crias": cria.objects.filter(cabecagado__esta_vivo=True).count(),
-                  "transacoes_descricoes":  zip(transacoes,descricoes)
-                   }
-            meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
-            hoje = datetime.date.today()
-            mes_atual = hoje.month-1
-            i=0
-            x = []
-            ym = []
-            yf = []
-            acum_f = 0
-            acum_m = 0
-            while i<6:
-                data_lim = hoje - datetime.timedelta(days=30*(7-i))
-                x.append(meses[(mes_atual+i)%12])
-                nf = (cria.objects.filter(cabecagado__esta_vivo=True)&cria.objects.filter(cabecagado__nascimento__lt=data_lim)&cria.objects.filter(cabecagado__sexo=cabecagado.FEMALE)).count() - acum_f
-                nm = (cria.objects.filter(cabecagado__esta_vivo=True)&cria.objects.filter(cabecagado__nascimento__lt=data_lim)&cria.objects.filter(cabecagado__sexo=cabecagado.MALE)).count() - acum_m
-                acum_f += nf
-                acum_m += nm
-                yf.append(nf)
-                ym.append(nm)
-                i += 1
-            trace1 = go.Bar(x=x, y=yf,name = "Fêmeas")
-            trace2 = go.Bar(x=x, y=ym,name = "Machos")
+    if request.method =="GET":
+        # user = get_user()
+        # if user.is_anonymous:
+        #     return redirect("login")
+        transacoes = transacao.objects.order_by("data")[:5]
+        descricoes = []
+        for t in transacoes:
+            n = cabeca_transacionada.objects.filter(transacao=t).count()
+            descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
+        transacoes_list=[]
+        for u,v in zip(map(lambda x: x.id, transacoes),descricoes):
+            transacoes_list.append({"id":u,"descricão":v})
 
-            layout=go.Layout(title="Bezerros prontos para desmame (próximos meses)", yaxis={'title':'Número de bezerros'})
-            figure=go.Figure(data=[trace1,trace2],layout=layout)
-    
-            context['graph'] = figure.to_html(full_html=False)
 
-            return render(request,"home.html",context)
-        if request.method == "POST":
-            return HttpResponseNotFound("")
-    else:
-        return redirect(f"/login") 
+        meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
+        hoje = datetime.date.today()
+        mes_atual = hoje.month-1
+        i=0
+        x = []
+        ym = []
+        yf = []
+        acum_f = 0
+        acum_m = 0
+        while i<6:
+            data_lim = hoje - datetime.timedelta(days=30*(7-i))
+            x.append(meses[(mes_atual+i)%12])
+            nf = (cria.objects.filter(cabecagado__esta_vivo=True)&cria.objects.filter(cabecagado__nascimento__lt=data_lim)&cria.objects.filter(cabecagado__sexo=cabecagado.FEMALE)).count() - acum_f
+            nm = (cria.objects.filter(cabecagado__esta_vivo=True)&cria.objects.filter(cabecagado__nascimento__lt=data_lim)&cria.objects.filter(cabecagado__sexo=cabecagado.MALE)).count() - acum_m
+            acum_f += nf
+            acum_m += nm
+            yf.append(nf)
+            ym.append(nm)
+            i += 1
+        resposta = {"n_matrizes" : (matriz.objects.filter(cabecagado__esta_vivo=True)&matriz.objects.filter(cabecagado__vendido=False)).count(),
+                    "n_bois" : (boi.objects.filter(cabecagado__esta_vivo=True)&boi.objects.filter(cabecagado__vendido=False)).count(),
+                    "n_bezerros_male" : (cria.objects.filter(cabecagado__esta_vivo=True)&cria.objects.filter(cabecagado__vendido=False)&cria.objects.filter(cabecagado__sexo=cabecagado.MALE)).count(),
+                    "n_bezerros_female" : (cria.objects.filter(cabecagado__esta_vivo=True)&cria.objects.filter(cabecagado__vendido=False)&cria.objects.filter(cabecagado__sexo=cabecagado.FEMALE)).count(),
+                    "graph":{
+                        "title": "Bezerros prontos para desmame (próximos meses)",
+                        "x_label" : "",
+                        "y_label" : 'Número de bezerros',
+                        "x_series" : x,
+                        "male_y_series" : ym,
+                        "female_y_series": yf
+                        },
+                    "transactions":transacoes_list
+                    }
+        resposta_json = json.dumps(resposta,indent=4)
+        return HttpResponse(resposta_json,content_type='aplication/json')
+    if request.method == "POST":
+        return HttpResponseNotFound("") 
         
 
 def CabecaListView(request):
