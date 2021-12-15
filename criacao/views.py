@@ -198,7 +198,7 @@ def LoginView(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect("home")
+            return redirect("/dashboard")
         else:
             return redirect("login")
 
@@ -219,7 +219,7 @@ def HomeView(request):
             descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
         transacoes_list=[]
         for u,v in zip(transacoes,descricoes):
-            transacoes_list.append({"id":u.id,"descricão":v,"valor":u.valor,"tipo":u.tipo,"data":str(u.data)})
+            transacoes_list.append({"id":u.id,"descricao":v,"valor":u.valor,"tipo":u.tipo,"data":str(u.data)})
 
 
         meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
