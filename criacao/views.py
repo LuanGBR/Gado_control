@@ -434,15 +434,16 @@ def EditView(request,pk):
         ficha.cabecagado = cabeca
         ficha.pesos_timeseries = request.POST.get("timeseries")
         ficha.save()
-        vac = vacinas.objects.get(ficha_medica_id=pk)
+        vac = vacinas.objects.get(ficha_medica_id=int(ficha_medica.objects.get(cabecagado_id=pk).id))
         vac.febre_aftosa = bool(request.POST.get("febre_aftosa"))
         vac.brucelose = bool(request.POST.get("brucelose"))
         vac.botulismo = bool(request.POST.get("botulismo"))
         vac.clostridioses = bool(request.POST.get("clostridioses"))
         vac.raiva = bool(request.POST.get("raiva"))
         vac.leptospirose = bool(request.POST.get("leptospirose"))
-        vac.save()
         vac.ibr_bvd = bool(request.POST.get("ibr_bvd"))
+        vac.save()
+        
         if s =="Bezerro":
             obj = cria.objects.get(cabecagado_id=pk)
             obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
