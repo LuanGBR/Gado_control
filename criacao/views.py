@@ -11,7 +11,7 @@ from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, 
 from django.contrib.auth.decorators import login_required
 
 import plotly.graph_objects as go
-import datetime 
+import datetime
 from django.core import serializers
 from datetime import timedelta
 import json
@@ -83,7 +83,7 @@ def DetailView(request, pk):
             return HttpResponse(resposta_json,content_type='aplication/json')
 
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoEdit(request,pk):
@@ -107,11 +107,11 @@ def TransacaoEdit(request,pk):
             antigoRegistro = cabeca_transacionada.objects.filter(transacao_id=pk).delete()
             for i in range(len(array_cabecas)):
                 array_cabecas[i].transacao_id = pk
-                array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id            
+                array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
                 array_cabecas[i].save()
             return redirect(f"/transacao/{t.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoCreate(request):
@@ -165,7 +165,7 @@ def TransacaoCreate(request):
                     i+=1
             return redirect(f"/transacao/{t.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoList(request):
@@ -179,9 +179,9 @@ def TransacaoList(request):
         }
 
         resposta_json = json.dumps(context,indent=4)
-        return HttpResponse(resposta_json,content_type='aplication/json')
+        return HttpResponse(resposta_json)#,content_type='aplication/json')
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoDetail(request, pk):
@@ -203,15 +203,15 @@ def TransacaoDetail(request, pk):
             'envolvido': transacao.objects.get(id=pk).envolvido,
             'tags': tags
         }
-        
+
         resposta_json = json.dumps(context,indent=3)
         return HttpResponse(resposta_json,content_type='aplication/json')
-        
+
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
-def LoginView(request):    
+def LoginView(request):
     if request.method =="GET":
         return render(request,"login.html")
     if request.method =="POST":
@@ -220,7 +220,7 @@ def LoginView(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect("home")
+            return redirect("/dashboard")
         else:
             return redirect("login")
 
@@ -240,8 +240,8 @@ def HomeView(request):
             n = cabeca_transacionada.objects.filter(transacao=t).count()
             descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
         transacoes_list=[]
-        for u,v in zip(map(lambda x: x.id, transacoes),descricoes):
-            transacoes_list.append({"id":u,"descricão":v})
+        for u,v in zip(transacoes,descricoes):
+            transacoes_list.append({"id":u.id,"descricao":v,"valor":u.valor,"tipo":u.tipo,"data":str(u.data)})
 
 
         meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
@@ -280,49 +280,40 @@ def HomeView(request):
         resposta_json = json.dumps(resposta,indent=4)
         return HttpResponse(resposta_json)#,content_type='aplication/json')
     if request.method == "POST":
-        return HttpResponseNotFound("") 
-        
+        return HttpResponseNotFound("")
+
 
 def CabecaListView(request):
     if request.user.is_authenticated:
         if request.method == "GET":
-            boi_checked = False
-            matriz_checked = False
-            cria_checked = True
-            order_by_selected = False
-            brinco_selected = False
-            order_by_text = False
-            category_filter = "ativos"
-            category_text = "Ativos"
             brincos_set = cabecagado.objects.all()
-            if request.GET.get("filtered"):
-                if request.GET.get("boi_checked"):
-                    boi_checked = True
-                if request.GET.get("matriz_checked"):
-                    matriz_checked = True
-                if not request.GET.get("cria_checked"):
-                    cria_checked = False
-                if request.GET.get("cor") != "all":
-                    brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
-                    brinco_selected = brinco_selected[0]
-                    brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
-                category_filter = request.GET.get("categoria")
-                category_text = category_filter.capitalize()
+            if request.GET.get("boi_checked") == "1":
+                boi_checked = True
+            if request.GET.get("matriz_checked") == "1":
+                matriz_checked = True
+            if not request.GET.get("cria_checked") == "1":
+                cria_checked = False
+            if request.GET.get("cor") != "all":
+                brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
+                brinco_selected = brinco_selected[0]
+                brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
+            category_filter = request.GET.get("categoria")
+            category_text = category_filter.capitalize()
 
-                order_by_selected = request.GET.get("order_by")
-                if order_by_selected == "crescente":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Brinco - Crescente"
-                elif order_by_selected == "maisnovo":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Idade - Mais novo"
-                elif order_by_selected == "maisvelho":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Idade - Mais velho"
-                elif order_by_selected == "decrescente":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Brinco - Decrescente"
-                order_by_selected = request.GET.get("order_by")
+            order_by_selected = request.GET.get("order_by")
+            if order_by_selected == "crescente":
+                order_by_selected = order_by_selected
+                order_by_text = "Brinco - Crescente"
+            elif order_by_selected == "maisnovo":
+                order_by_selected = order_by_selected
+                order_by_text = "Idade - Mais novo"
+            elif order_by_selected == "maisvelho":
+                order_by_selected = order_by_selected
+                order_by_text = "Idade - Mais velho"
+            elif order_by_selected == "decrescente":
+                order_by_selected = order_by_selected
+                order_by_text = "Brinco - Decrescente"
+            order_by_selected = request.GET.get("order_by")
 
             context = {"boi": "checked" if boi_checked else "",
                    "matriz": "checked" if matriz_checked else "",
@@ -334,7 +325,7 @@ def CabecaListView(request):
                    "category":category_filter,
                    "category_text": category_text
                    }
-        
+
             if category_filter == "ativos":
                 status_set = cabecagado.objects.filter(esta_vivo=True)&cabecagado.objects.filter(vendido=False)
             elif category_filter == "mortos":
@@ -368,11 +359,11 @@ def CabecaListView(request):
                 resposta.append({"id":i.id,"tipo":i.tipo,"sexo":i.sexo,"n_etiqueta":i.n_etiqueta,"cor_brinco":i.brinco.cor_nome,"idade":i.idade()})
             resposta = {"Cabecas":resposta}
             resposta = json.dumps(resposta,indent=4)
-            
+
             return HttpResponse(resposta)
     else:
-        return redirect(f"/login")           
-    
+        return redirect(f"/login")
+
 
 def Criar_cabeça(request):
     if request.user.is_authenticated:
@@ -441,7 +432,7 @@ def Criar_cabeça(request):
             obj.save()
             return redirect(f"/cabeca/{cabeca.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 def EditView(request,pk):
     if request.method=="GET":
         context={}
@@ -490,7 +481,7 @@ def EditView(request,pk):
             cabeca.causa_mortis = str(request.POST.get("causa_mortis"))
         if checkBoxVendido == 'on':
             cabeca.esta_vivo = False
-            cabeca.vendido = True        
+            cabeca.vendido = True
         else:
             cabeca.vendido = False
         cabeca.observacoes = request.POST.get("observacoes")
@@ -510,9 +501,13 @@ def EditView(request,pk):
         vac.leptospirose = bool(request.POST.get("leptospirose"))
         vac.ibr_bvd = bool(request.POST.get("ibr_bvd"))
         vac.save()
-        
+
         if s =="Bezerro":
             obj = cria.objects.get(cabecagado_id=pk)
             obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
             obj.save()
         return redirect(f"/cabeca/{cabeca.id}/view")
+
+def get_brincosView(request):
+    if request.method == "GET":
+        return serializers('json',brinco.objects.all())

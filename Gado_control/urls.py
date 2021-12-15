@@ -18,7 +18,7 @@ from django.urls import path, include, re_path
 from criacao.models import cabecagado
 from django.views.generic import TemplateView
 
-from criacao.views import CabecaListView, HomeView, LandView, LoginView, Criar_cabeça, DetailView, TransacaoList, TransacaoDetail, TransacaoCreate, TransacaoEdit, EditView
+from criacao.views import CabecaListView, HomeView, LandView, LoginView, Criar_cabeça, DetailView, TransacaoList, TransacaoDetail, TransacaoCreate, TransacaoEdit, EditView, get_brincosView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,7 +33,8 @@ urlpatterns = [
     path("transacao/list",TransacaoList, name="transacoes"),
     path("transacao/<pk>/view",TransacaoDetail, name="transacoesDetail"),
     path("transacao/add",TransacaoCreate, name="transacoesCreate"),
-    path("transacao/<pk>/edit",TransacaoEdit, name="transacaoEdit")
+    path("transacao/<pk>/edit",TransacaoEdit, name="transacaoEdit"),
+    path("brincos/get",get_brincosView)
 ]
 
 urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name="index.html"))]
