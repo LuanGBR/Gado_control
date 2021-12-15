@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 
 import plotly.graph_objects as go
 import datetime 
+from django.core import serializers
 from datetime import timedelta
 
 
@@ -22,10 +23,14 @@ def DetailView(request, pk):
         if( tipo == "Boi"):
             context = {'id':pk,
             'tipo' : tipo,
+            'identificacao':identificacao,
             'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
             'observacoes':cabecagado.objects.get(id=pk).observacoes,
             'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
             return render(request,"detailview.html",context)
+            
+            set_json = serializers.serialize("json",context)
+            return HttpResponse(set_json,content_type='aplication/json')
 
         elif(tipo == "Bezerro"):
             context = {'id':pk,
@@ -36,6 +41,8 @@ def DetailView(request, pk):
             'observacoes':cabecagado.objects.get(id=pk).observacoes,
             'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
             return render(request,"detailview.html",context)
+            #set_json = serializers.serialize("json",context)
+            #return HttpResponse(set_json,content_type='aplication/json')
 
         else:
             nascimentos_crias = []
@@ -51,16 +58,19 @@ def DetailView(request, pk):
                 media = sumdeltas/numdeltas
             else:
                 media = 0
-            context = {'id':pk,
-            'tipo' : tipo,
-            'identificacao':identificacao,
-            'nascimentos_crias':nascimentos_crias,
-            'tempo_crias':media,
+            context = {'id':str(pk),
+            'tipo' : str(tipo),
+            'identificacao':str(identificacao),
+            'nascimentos_crias':str(nascimentos_crias),
+            'tempo_crias':str(media),
             'gestacoes': str(cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id).count()),
-            'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
-            'observacoes':cabecagado.objects.get(id=pk).observacoes,
+            'pesos':str(ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries),
+            'observacoes':str(cabecagado.objects.get(id=pk).observacoes),
             'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
             return render(request,"detailview.html",context)
+
+            #set_json = serializers.serialize("json",context)
+            #return HttpResponse(set_json,content_type='aplication/json')
     else:
         return redirect(f"/login") 
 
@@ -298,8 +308,10 @@ def CabecaListView(request):
             else:
                 final_set = final_set.order_by('-nascimento')
             context["cabecas"] = final_set
-        
-            return render(request,"cabecaslist.html",context)
+
+            set_json = serializers.serialize("json",final_set)
+            return HttpResponse(set_json,content_type='aplication/json')
+
     else:
         return redirect(f"/login")           
     
@@ -358,7 +370,6 @@ def Criar_cabeça(request):
             vac.ibr_bvd = bool(request.POST.get("ibr_bvd"))
             vac.ficha_medica = ficha
             vac.save()
-
             if s == "1":
                 obj = boi()
                 obj.cabecagado = cabeca
@@ -408,8 +419,7 @@ def EditView(request,pk):
         cabeca = cabecagado.objects.get(id=pk)  #Puxa a cabeca do tabela cabecagado pelo ID
         s = str(request.POST.get("tipo"))            #Pega o novo tipo
         cabeca.n_etiqueta = request.POST.get("n_etiqueta")  #Define o novo número da etiqueta para a cabeca
-        cabeca.brinco = brinco.objects.get(id=str(request.POST.get("brinco")))   
-        #data = datetime.datetime.strptime(str(request.POST.get("nascimento")), '%d/%m/%Y')
+        cabeca.brinco = brinco.objects.get(id=str(request.POST.get("brinco")))
         data = request.POST.get("nascimento")
         cabeca.nascimento = data
         checkBoxVivo = str(request.POST.get("esta_vivo"))
@@ -417,7 +427,6 @@ def EditView(request,pk):
         if checkBoxVivo == 'on':
             cabeca.esta_vivo = True
         else:
-            #morte = datetime.datetime.strptime(str(request.POST.get("morte")), '%d/%m/%Y')
             morte = request.POST.get("morte")
             cabeca.morte = morte
             cabeca.causa_mortis = str(request.POST.get("causa_mortis"))
