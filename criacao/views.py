@@ -500,4 +500,4 @@ def EditView(request,pk):
 
 def get_brincosView(request):
     if request.method == "GET":
-        return serializers('json',brinco.objects.all())
+        return HttpResponse(serializers.serialize('json',brinco.objects.all()) , content_type="application/json")
