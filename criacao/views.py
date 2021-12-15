@@ -264,6 +264,9 @@ def HomeView(request):
 def CabecaListView(request):
     if request.user.is_authenticated:
         if request.method == "GET":
+            boi_checked = False
+            matriz_checked = False
+            cria_checked = True
             brincos_set = cabecagado.objects.all()
             if request.GET.get("boi_checked") == "1":
                 boi_checked = True
@@ -293,16 +296,6 @@ def CabecaListView(request):
                 order_by_text = "Brinco - Decrescente"
             order_by_selected = request.GET.get("order_by")
 
-            context = {"boi": "checked" if boi_checked else "",
-                   "matriz": "checked" if matriz_checked else "",
-                   "cria": "checked" if cria_checked else "",
-                   "brincos": brinco.objects.all(),
-                   "brinco_selected" : brinco_selected,
-                   "order_by_selected": order_by_selected,
-                   "order_by_text":order_by_text,
-                   "category":category_filter,
-                   "category_text": category_text
-                   }
 
             if category_filter == "ativos":
                 status_set = cabecagado.objects.filter(esta_vivo=True)&cabecagado.objects.filter(vendido=False)
@@ -331,7 +324,6 @@ def CabecaListView(request):
                     final_set = final_set.order_by('-n_etiqueta')
             else:
                 final_set = final_set.order_by('-nascimento')
-            context["cabecas"] = final_set
             resposta = []
             for i in final_set:
                 resposta.append({"id":i.id,"tipo":i.tipo,"sexo":i.sexo,"n_etiqueta":i.n_etiqueta,"cor_brinco":i.brinco.cor_nome,"idade":i.idade()})
