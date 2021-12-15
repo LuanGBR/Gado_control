@@ -17,21 +17,31 @@ from datetime import timedelta
 import json
 
 
+
 def DetailView(request, pk):
     if request.user.is_authenticated:
         tipo = cabecagado.objects.get(id=pk).tipo
         identificacao = cabecagado.__str__(cabecagado.objects.get(id=pk))
+        vacinas_list = []
+        vacina_dic = {}
+        l = vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id = pk).id)
+        vacinas_list.append({"febre_aftosa":l.febre_aftosa})
+        vacinas_list.append({"brucelose":l.brucelose})
+        vacinas_list.append({"clostridioses":l.clostridioses})
+        vacinas_list.append({"botulismo":l.botulismo})
+        vacinas_list.append({"leptospirose":l.leptospirose})
+        vacinas_list.append({"raiva":l.raiva})
+        vacinas_list.append({"ibr_bvd":l.ibr_bvd})
         if( tipo == "Boi"):
             context = {'id':pk,
             'tipo' : tipo,
             'identificacao':identificacao,
             'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
             'observacoes':cabecagado.objects.get(id=pk).observacoes,
-            'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
-            return render(request,"detailview.html",context)
-            
-            set_json = serializers.serialize("json",context)
-            return HttpResponse(set_json,content_type='aplication/json')
+            'vacinas':vacinas_list
+            }
+            resposta_json = json.dumps(context,indent=3)
+            return HttpResponse(resposta_json,content_type='aplication/json')
 
         elif(tipo == "Bezerro"):
             context = {'id':pk,
@@ -40,14 +50,14 @@ def DetailView(request, pk):
             'matriz': cria.objects.get(cabecagado_id=pk).matriz_id,
             'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
             'observacoes':cabecagado.objects.get(id=pk).observacoes,
-            'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
-            return render(request,"detailview.html",context)
-            #set_json = serializers.serialize("json",context)
-            #return HttpResponse(set_json,content_type='aplication/json')
+            'vacinas':vacinas_list
+            }
+            resposta_json = json.dumps(context,indent=3)
+            return HttpResponse(resposta_json,content_type='aplication/json')
 
         else:
             nascimentos_crias = []
-            crias = cria.objects.filter(matriz_id = pk)
+            crias = cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id)
             for c in crias:
                 nascimentos_crias.append(cabecagado.objects.get(id = c.cabecagado_id).nascimento)
             numdeltas = len(nascimentos_crias)-1
@@ -67,11 +77,11 @@ def DetailView(request, pk):
             'gestacoes': str(cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id).count()),
             'pesos':str(ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries),
             'observacoes':str(cabecagado.objects.get(id=pk).observacoes),
-            'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
-            return render(request,"detailview.html",context)
+            'vacinas':vacinas_list
+            }
+            resposta_json = json.dumps(context,indent=3)
+            return HttpResponse(resposta_json,content_type='aplication/json')
 
-            #set_json = serializers.serialize("json",context)
-            #return HttpResponse(set_json,content_type='aplication/json')
     else:
         return redirect(f"/login") 
 
@@ -121,6 +131,11 @@ def TransacaoCreate(request):
             t.tags = stringTransacao
             t.tipo = request.POST.get('tipo')
             t.save()
+            #if tipo == "Compra":
+            #    pass
+            #elif tipo == "Venda":
+            #    for 
+
             for i in range(len(array_cabecas)):
                 array_cabecas[i].transacao_id = t.id
                 array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
@@ -132,8 +147,17 @@ def TransacaoCreate(request):
 
 def TransacaoList(request):
     if request.user.is_authenticated:
-        context = {"transacoes":transacao.objects.all()}
-        return render(request,"transacaoList.html", context)
+        #context = {"transacoes":transacao.objects.all()}
+        transacoes = transacao.objects.all()
+        transacoes_list = []
+        for t in transacoes:
+            transacoes_list.append({'id':t.id,'envolvido':t.envolvido,'data':str(t.data)})
+        context = {
+            "transacoes":transacoes_list
+        }
+
+        resposta_json = json.dumps(context,indent=4)
+        return HttpResponse(resposta_json)#,content_type='aplication/json')
     else:
         return redirect(f"/login") 
 
@@ -153,11 +177,14 @@ def TransacaoDetail(request, pk):
             'id': pk,
             'tipo': tipo,
             'valor': transacao.objects.get(id=pk).valor,
-            'data': transacao.objects.get(id=pk).data,
+            'data': str(transacao.objects.get(id=pk).data),
             'envolvido': transacao.objects.get(id=pk).envolvido,
             'tags': tags
         }
-        return render(request,"transacoesDetail.html", context)
+        
+        resposta_json = json.dumps(context,indent=3)
+        return HttpResponse(resposta_json,content_type='aplication/json')
+        
     else:
         return redirect(f"/login") 
 
@@ -229,7 +256,7 @@ def HomeView(request):
                     "transactions":transacoes_list
                     }
         resposta_json = json.dumps(resposta,indent=4)
-        return HttpResponse(resposta_json,content_type='aplication/json')
+        return HttpResponse(resposta_json)#,content_type='aplication/json')
     if request.method == "POST":
         return HttpResponseNotFound("") 
         
