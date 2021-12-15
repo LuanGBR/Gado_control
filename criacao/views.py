@@ -304,8 +304,13 @@ def CabecaListView(request):
             else:
                 final_set = final_set.order_by('-nascimento')
             context["cabecas"] = final_set
-        
-            return render(request,"cabecaslist.html",context)
+            resposta = []
+            for i in final_set:
+                resposta.append({"id":i.id,"tipo":i.tipo,"sexo":i.sexo,"n_etiqueta":i.n_etiqueta,"cor_brinco":i.brinco.cor_nome,"idade":i.idade()})
+            resposta = {"Cabecas":resposta}
+            resposta = json.dumps(resposta,indent=4)
+            
+            return HttpResponse(resposta)
     else:
         return redirect(f"/login")           
     
