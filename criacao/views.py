@@ -122,24 +122,47 @@ def TransacaoCreate(request):
             return render(request, "transacoesCreate.html",context)
         if request.method =="POST":
             t = transacao()
-            stringTransacao = request.POST.get('tags')
-            cabecas_transacionadas = str(stringTransacao).split(",")
-            array_cabecas = [cabeca_transacionada() for i in range(len(cabecas_transacionadas))]
+            stringTransacao = request.POST.get('gados')
+            gados_compra = str(stringTransacao).split('\r\n')
+            array_cabecas = [cabeca_transacionada() for i in range(len(gados_compra))]
             t.valor = request.POST.get('valor')
             t.envolvido = request.POST.get('envolvido')
             t.data = request.POST.get('data')
-            t.tags = stringTransacao
             t.tipo = request.POST.get('tipo')
             t.save()
-            #if tipo == "Compra":
-            #    pass
-            #elif tipo == "Venda":
-            #    for
-
-            for i in range(len(array_cabecas)):
-                array_cabecas[i].transacao_id = t.id
-                array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
-                array_cabecas[i].save()
+            if t.tipo == "Compra":
+                i = 0
+                for c in gados_compra:
+                    atributos = c.split(',') #ordem: n_etiqueta, nascimento, sexo, tipo, brinco_id
+                    gado = cabecagado()
+                    gado.n_etiqueta = str(atributos[0])
+                    gado.nascimento = str(atributos[1])
+                    gado.tipo = str(atributos[3])
+                    if gado.tipo == "Vaca":
+                        gado.sexo = "Fêmea"
+                    elif gado.tipo == "Boi":
+                        gado.sexo = "Macho"
+                    else:
+                        gado.sexo = str(atributos[2])
+                    gado.brinco_id = int(atributos[4])
+                    gado.author_id = get_user(request).id
+                    gado.save()
+                    array_cabecas[i].transacao_id = t.id
+                    array_cabecas[i].cabecagado_id = gado.id
+                    array_cabecas[i].save()
+                    i+=1
+                     #   n_etiqueta, nascimento, sexo, tipo, brinco_id
+            elif t.tipo == "Venda":
+                i = 0
+                for v in gados_compra:
+                    identificacao = v.split('/') #n_etiqueta/n_brinco
+                    gado = cabecagado.objects.get(n_etiqueta = str(identificacao[0]),brinco_id = str(identificacao[1]))
+                    gado.vendido = 1
+                    gado.save()
+                    array_cabecas[i].transacao_id = t.id
+                    array_cabecas[i].cabecagado_id = gado.id
+                    array_cabecas[i].save()
+                    i+=1
             return redirect(f"/transacao/{t.id}/view")
     else:
         return redirect(f"/login")
@@ -147,7 +170,6 @@ def TransacaoCreate(request):
 
 def TransacaoList(request):
     if request.user.is_authenticated:
-        #context = {"transacoes":transacao.objects.all()}
         transacoes = transacao.objects.all()
         transacoes_list = []
         for t in transacoes:
@@ -263,43 +285,34 @@ def HomeView(request):
 
 def CabecaListView(request):
         if request.method == "GET":
-            boi_checked = False
-            matriz_checked = False
-            cria_checked = True
-            order_by_selected = False
-            brinco_selected = False
-            order_by_text = False
-            category_filter = "ativos"
-            category_text = "Ativos"
             brincos_set = cabecagado.objects.all()
-            if request.GET.get("filtered"):
-                if request.GET.get("boi_checked"):
-                    boi_checked = True
-                if request.GET.get("matriz_checked"):
-                    matriz_checked = True
-                if not request.GET.get("cria_checked"):
-                    cria_checked = False
-                if request.GET.get("cor") != "all":
-                    brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
-                    brinco_selected = brinco_selected[0]
-                    brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
-                category_filter = request.GET.get("categoria")
-                category_text = category_filter.capitalize()
+            if request.GET.get("boi_checked") == "1":
+                boi_checked = True
+            if request.GET.get("matriz_checked") == "1":
+                matriz_checked = True
+            if not request.GET.get("cria_checked") == "1":
+                cria_checked = False
+            if request.GET.get("cor") != "all":
+                brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
+                brinco_selected = brinco_selected[0]
+                brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
+            category_filter = request.GET.get("categoria")
+            category_text = category_filter.capitalize()
 
-                order_by_selected = request.GET.get("order_by")
-                if order_by_selected == "crescente":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Brinco - Crescente"
-                elif order_by_selected == "maisnovo":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Idade - Mais novo"
-                elif order_by_selected == "maisvelho":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Idade - Mais velho"
-                elif order_by_selected == "decrescente":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Brinco - Decrescente"
-                order_by_selected = request.GET.get("order_by")
+            order_by_selected = request.GET.get("order_by")
+            if order_by_selected == "crescente":
+                order_by_selected = order_by_selected
+                order_by_text = "Brinco - Crescente"
+            elif order_by_selected == "maisnovo":
+                order_by_selected = order_by_selected
+                order_by_text = "Idade - Mais novo"
+            elif order_by_selected == "maisvelho":
+                order_by_selected = order_by_selected
+                order_by_text = "Idade - Mais velho"
+            elif order_by_selected == "decrescente":
+                order_by_selected = order_by_selected
+                order_by_text = "Brinco - Decrescente"
+            order_by_selected = request.GET.get("order_by")
 
             context = {"boi": "checked" if boi_checked else "",
                    "matriz": "checked" if matriz_checked else "",
@@ -492,3 +505,7 @@ def EditView(request,pk):
             obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
             obj.save()
         return redirect(f"/cabeca/{cabeca.id}/view")
+
+def get_brincosView(request):
+    if request.method == "GET":
+        return serializers('json',brinco.objects.all())
