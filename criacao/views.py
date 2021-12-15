@@ -9,7 +9,7 @@ from criacao.forms import CabecagadoCreateForm, CriaCreateForm, PesosCreateForm,
 from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas
 
 from django.contrib.auth.decorators import login_required
-
+from django.core import serializers
 import plotly.graph_objects as go
 import datetime 
 from datetime import timedelta
@@ -298,8 +298,11 @@ def CabecaListView(request):
             else:
                 final_set = final_set.order_by('-nascimento')
             context["cabecas"] = final_set
-        
-            return render(request,"cabecaslist.html",context)
+
+            set_json = serializers.serialize("json",final_set)
+            
+            return HttpResponse(set_json,content_type='aplication/json')
+            
     else:
         return redirect(f"/login")           
     
@@ -373,7 +376,9 @@ def Criar_cabeça(request):
             return redirect(f"/cabeca/{cabeca.id}/view")
     else:
         return redirect(f"/login") 
+
 def EditView(request,pk):
+<<<<<<< HEAD
     if request.method=="GET":
         context={}
         cabeca = cabecagado.objects.get(id=pk)
@@ -449,3 +454,6 @@ def EditView(request,pk):
             obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
             obj.save()
         return redirect(f"/cabeca/{cabeca.id}/view")
+=======
+    pass
+>>>>>>> test integration
