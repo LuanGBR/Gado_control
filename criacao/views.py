@@ -11,7 +11,7 @@ from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, 
 from django.contrib.auth.decorators import login_required
 
 import plotly.graph_objects as go
-import datetime 
+import datetime
 from django.core import serializers
 from datetime import timedelta
 import json
@@ -83,7 +83,7 @@ def DetailView(request, pk):
             return HttpResponse(resposta_json,content_type='aplication/json')
 
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoEdit(request,pk):
@@ -107,11 +107,11 @@ def TransacaoEdit(request,pk):
             antigoRegistro = cabeca_transacionada.objects.filter(transacao_id=pk).delete()
             for i in range(len(array_cabecas)):
                 array_cabecas[i].transacao_id = pk
-                array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id            
+                array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
                 array_cabecas[i].save()
             return redirect(f"/transacao/{t.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoCreate(request):
@@ -134,7 +134,7 @@ def TransacaoCreate(request):
             #if tipo == "Compra":
             #    pass
             #elif tipo == "Venda":
-            #    for 
+            #    for
 
             for i in range(len(array_cabecas)):
                 array_cabecas[i].transacao_id = t.id
@@ -142,7 +142,7 @@ def TransacaoCreate(request):
                 array_cabecas[i].save()
             return redirect(f"/transacao/{t.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoList(request):
@@ -157,9 +157,9 @@ def TransacaoList(request):
         }
 
         resposta_json = json.dumps(context,indent=4)
-        return HttpResponse(resposta_json,content_type='aplication/json')
+        return HttpResponse(resposta_json)#,content_type='aplication/json')
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoDetail(request, pk):
@@ -181,15 +181,15 @@ def TransacaoDetail(request, pk):
             'envolvido': transacao.objects.get(id=pk).envolvido,
             'tags': tags
         }
-        
+
         resposta_json = json.dumps(context,indent=3)
         return HttpResponse(resposta_json,content_type='aplication/json')
-        
+
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
-def LoginView(request):    
+def LoginView(request):
     if request.method =="GET":
         return render(request,"login.html")
     if request.method =="POST":
@@ -258,8 +258,8 @@ def HomeView(request):
         resposta_json = json.dumps(resposta,indent=4)
         return HttpResponse(resposta_json)#,content_type='aplication/json')
     if request.method == "POST":
-        return HttpResponseNotFound("") 
-        
+        return HttpResponseNotFound("")
+
 
 def CabecaListView(request):
     if request.user.is_authenticated:
@@ -312,7 +312,7 @@ def CabecaListView(request):
                    "category":category_filter,
                    "category_text": category_text
                    }
-        
+
             if category_filter == "ativos":
                 status_set = cabecagado.objects.filter(esta_vivo=True)&cabecagado.objects.filter(vendido=False)
             elif category_filter == "mortos":
@@ -346,11 +346,11 @@ def CabecaListView(request):
                 resposta.append({"id":i.id,"tipo":i.tipo,"sexo":i.sexo,"n_etiqueta":i.n_etiqueta,"cor_brinco":i.brinco.cor_nome,"idade":i.idade()})
             resposta = {"Cabecas":resposta}
             resposta = json.dumps(resposta,indent=4)
-            
+
             return HttpResponse(resposta)
     else:
-        return redirect(f"/login")           
-    
+        return redirect(f"/login")
+
 
 def Criar_cabeça(request):
     if request.user.is_authenticated:
@@ -419,7 +419,7 @@ def Criar_cabeça(request):
             obj.save()
             return redirect(f"/cabeca/{cabeca.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 def EditView(request,pk):
     if request.method=="GET":
         context={}
@@ -468,7 +468,7 @@ def EditView(request,pk):
             cabeca.causa_mortis = str(request.POST.get("causa_mortis"))
         if checkBoxVendido == 'on':
             cabeca.esta_vivo = False
-            cabeca.vendido = True        
+            cabeca.vendido = True
         else:
             cabeca.vendido = False
         cabeca.observacoes = request.POST.get("observacoes")
@@ -488,7 +488,7 @@ def EditView(request,pk):
         vac.leptospirose = bool(request.POST.get("leptospirose"))
         vac.ibr_bvd = bool(request.POST.get("ibr_bvd"))
         vac.save()
-        
+
         if s =="Bezerro":
             obj = cria.objects.get(cabecagado_id=pk)
             obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
