@@ -186,7 +186,7 @@ def HomeView(request):
 
             layout=go.Layout(title="Bezerros prontos para desmame (próximos meses)", yaxis={'title':'Número de bezerros'})
             figure=go.Figure(data=[trace1,trace2],layout=layout)
-    
+
             context['graph'] = figure.to_html(full_html=False)
 
         meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
