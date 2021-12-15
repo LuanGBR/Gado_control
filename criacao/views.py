@@ -264,43 +264,34 @@ def HomeView(request):
 def CabecaListView(request):
     if request.user.is_authenticated:
         if request.method == "GET":
-            boi_checked = False
-            matriz_checked = False
-            cria_checked = True
-            order_by_selected = False
-            brinco_selected = False
-            order_by_text = False
-            category_filter = "ativos"
-            category_text = "Ativos"
             brincos_set = cabecagado.objects.all()
-            if request.GET.get("filtered"):
-                if request.GET.get("boi_checked"):
-                    boi_checked = True
-                if request.GET.get("matriz_checked"):
-                    matriz_checked = True
-                if not request.GET.get("cria_checked"):
-                    cria_checked = False
-                if request.GET.get("cor") != "all":
-                    brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
-                    brinco_selected = brinco_selected[0]
-                    brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
-                category_filter = request.GET.get("categoria")
-                category_text = category_filter.capitalize()
+            if request.GET.get("boi_checked"):
+                boi_checked = True
+            if request.GET.get("matriz_checked"):
+                matriz_checked = True
+            if not request.GET.get("cria_checked"):
+                cria_checked = False
+            if request.GET.get("cor") != "all":
+                brinco_selected = brinco.objects.get(id=int(request.GET.get("cor"))),
+                brinco_selected = brinco_selected[0]
+                brincos_set = cabecagado.objects.filter(brinco = brinco_selected)
+            category_filter = request.GET.get("categoria")
+            category_text = category_filter.capitalize()
 
-                order_by_selected = request.GET.get("order_by")
-                if order_by_selected == "crescente":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Brinco - Crescente"
-                elif order_by_selected == "maisnovo":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Idade - Mais novo"
-                elif order_by_selected == "maisvelho":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Idade - Mais velho"
-                elif order_by_selected == "decrescente":
-                    order_by_selected = order_by_selected
-                    order_by_text = "Brinco - Decrescente"
-                order_by_selected = request.GET.get("order_by")
+            order_by_selected = request.GET.get("order_by")
+            if order_by_selected == "crescente":
+                order_by_selected = order_by_selected
+                order_by_text = "Brinco - Crescente"
+            elif order_by_selected == "maisnovo":
+                order_by_selected = order_by_selected
+                order_by_text = "Idade - Mais novo"
+            elif order_by_selected == "maisvelho":
+                order_by_selected = order_by_selected
+                order_by_text = "Idade - Mais velho"
+            elif order_by_selected == "decrescente":
+                order_by_selected = order_by_selected
+                order_by_text = "Brinco - Decrescente"
+            order_by_selected = request.GET.get("order_by")
 
             context = {"boi": "checked" if boi_checked else "",
                    "matriz": "checked" if matriz_checked else "",
