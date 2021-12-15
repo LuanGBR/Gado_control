@@ -54,8 +54,4 @@ class TransacaoCreateForm(ModelForm):
 class CabecagadoEditForm(ModelForm):
     class Meta:
         model = cabecagado
-        fields = ["tipo","sexo","n_etiqueta", "brinco", "observacoes","vendido","esta_vivo","morte","causa_mortis", "nascimento"]
-        widgets = {
-            'nascimento':DateInput(),
-            'morte':DateInput()
-        }
+        fields = ["tipo","sexo","n_etiqueta", "brinco", "observacoes","vendido","esta_vivo","morte","causa_mortis"]
