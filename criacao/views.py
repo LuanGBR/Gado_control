@@ -11,7 +11,7 @@ from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, 
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 import plotly.graph_objects as go
-import datetime 
+import datetime
 from datetime import timedelta
 
 
@@ -62,7 +62,7 @@ def DetailView(request, pk):
             'vacinas': vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id=pk))}
             return render(request,"detailview.html",context)
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoEdit(request,pk):
@@ -86,11 +86,11 @@ def TransacaoEdit(request,pk):
             antigoRegistro = cabeca_transacionada.objects.filter(transacao_id=pk).delete()
             for i in range(len(array_cabecas)):
                 array_cabecas[i].transacao_id = pk
-                array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id            
+                array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
                 array_cabecas[i].save()
             return redirect(f"/transacao/{t.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoCreate(request):
@@ -116,7 +116,7 @@ def TransacaoCreate(request):
                 array_cabecas[i].save()
             return redirect(f"/transacao/{t.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoList(request):
@@ -124,7 +124,7 @@ def TransacaoList(request):
         context = {"transacoes":transacao.objects.all()}
         return render(request,"transacaoList.html", context)
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
 def TransacaoDetail(request, pk):
@@ -148,15 +148,15 @@ def TransacaoDetail(request, pk):
         }
         return render(request,"transacoesDetail.html", context)
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 
-def LoginView(request):    
+def LoginView(request):
     if request.method =="GET":
         return render(request,"login.html")
     if request.method =="POST":
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
@@ -208,18 +208,18 @@ def HomeView(request):
 
             layout=go.Layout(title="Bezerros prontos para desmame (próximos meses)", yaxis={'title':'Número de bezerros'})
             figure=go.Figure(data=[trace1,trace2],layout=layout)
-    
+
             context['graph'] = figure.to_html(full_html=False)
 
             return render(request,"home.html",context)
         if request.method == "POST":
             return HttpResponseNotFound("")
     else:
-        return redirect(f"/login") 
-        
+        return redirect(f"/login")
+
 
 def CabecaListView(request):
-    if request.user.is_authenticated:
+    # if request.user.is_authenticated:
         if request.method == "GET":
             boi_checked = False
             matriz_checked = False
@@ -269,7 +269,7 @@ def CabecaListView(request):
                    "category":category_filter,
                    "category_text": category_text
                    }
-        
+
             if category_filter == "ativos":
                 status_set = cabecagado.objects.filter(esta_vivo=True)&cabecagado.objects.filter(vendido=False)
             elif category_filter == "mortos":
@@ -300,12 +300,12 @@ def CabecaListView(request):
             context["cabecas"] = final_set
 
             set_json = serializers.serialize("json",final_set)
-            
+
             return HttpResponse(set_json,content_type='aplication/json')
-            
-    else:
-        return redirect(f"/login")           
-    
+
+    # else:
+    #     return redirect(f"/login")
+
 
 def Criar_cabeça(request):
     if request.user.is_authenticated:
@@ -375,9 +375,10 @@ def Criar_cabeça(request):
             obj.save()
             return redirect(f"/cabeca/{cabeca.id}/view")
     else:
-        return redirect(f"/login") 
+        return redirect(f"/login")
 
 def EditView(request,pk):
+<<<<<<< HEAD
 <<<<<<< HEAD
     if request.method=="GET":
         context={}
@@ -457,3 +458,6 @@ def EditView(request,pk):
 =======
     pass
 >>>>>>> test integration
+=======
+    pass
+>>>>>>> integration with build
