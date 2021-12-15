@@ -262,7 +262,6 @@ def HomeView(request):
 
 
 def CabecaListView(request):
-    if request.user.is_authenticated:
         if request.method == "GET":
             boi_checked = False
             matriz_checked = False
@@ -348,8 +347,7 @@ def CabecaListView(request):
             resposta = json.dumps(resposta,indent=4)
 
             return HttpResponse(resposta)
-    else:
-        return redirect(f"/login")
+
 
 
 def Criar_cabeça(request):
