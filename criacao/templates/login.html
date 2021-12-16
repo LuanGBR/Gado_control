@@ -9,7 +9,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 <script src="https://use.fontawesome.com/9a87bb795c.js"></script>
+<script src="https://kit.fontawesome.com/1305bc1926.js" crossorigin="anonymous"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+<script type="text/javascript" src="{% static 'js/login.js' %}"></script>
 </head>
 <style>
     
@@ -20,35 +22,62 @@
         {{message_Ln1}}<br>{{message_Ln2}}
     </div>
     <div class="container" >
-        <form method="POST" action="/login">
+        <form method="POST" action="/login" >
             <h2 class="title">Easy Farm</h2>
-            <div class="form-group success">
+            <div class="form-group">
                 <label class="field-label">Username</label><br>
-                <input type="text" class="form-field" name="username" required>
-                <div class="field-icon">!</div>
-                <small>Error message</small>
+                <input type="text" class="form-field" name="username" id='username' onblur="LocalValidationU()"  oninput="LocalValidationU()" required>
+                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-exclamation-circle"></i>
+                <small>Usuário é um campo obrigatório</small>
             </div>
             <div class="spacing"></div>
-            <div class="form-group error" >
+            <div class="form-group" >
                 
                 <label class="field-label">Senha:</label><br>
                 
-                <input type="password" class="form-field" name="password" required>
-                <div class="field-icon">!</div>
-                <small>Error message</small>
+                <input type="password" class="form-field" name="password" id="password" onblur="LocalValidationP()"  oninput="LocalValidationP()" required>
+                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-exclamation-circle"></i>
+                <small>Senha é um campo obrigatório</small>
             </div>
             <div class="spacing"></div>
             <div class="spacing"></div>
             <div class="spacing"></div>
                 <div class="form-group">
                     
-                    <button type="submit" class="field-button"  onclick="load()" ><h2 class="button-text">Entrar</h2></button>
+                    <button type="submit" class="field-button" onClick='FormLocalValidation()' ><h2 class="button-text">Entrar</h2></button>
                 </div>
             
         
     </div>
 </div>
-<div class="loader-dim"></div>
-<div class="c-loader"></div>
+
+<div class="loading" id="loadingScreen">
+    <div class="loader-dim"></div>
+    <div class="loader">
+        <span style="--i:1;"></span>
+        <span style="--i:2;"></span>
+        <span style="--i:3;"></span>
+        <span style="--i:4;"></span>
+        <span style="--i:5;"></span>
+        <span style="--i:6;"></span>
+        <span style="--i:7;"></span>
+        <span style="--i:8;"></span>
+        <span style="--i:9;"></span>
+        <span style="--i:10;"></span>
+        <span style="--i:11;"></span>
+        <span style="--i:12;"></span>
+        <span style="--i:13;"></span>
+        <span style="--i:14;"></span>
+        <span style="--i:15;"></span>
+        <span style="--i:16;"></span>
+        <span style="--i:17;"></span>
+        <span style="--i:18;"></span>
+        <span style="--i:19;"></span>
+        <span style="--i:20;"></span>
+    </div>
+    
+</div>
 </body>
 </html>

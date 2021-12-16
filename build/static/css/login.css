@@ -78,53 +78,110 @@ opacity:0.8;
 opacity:1;
 }
 
-.c-loader{
+.loader{
+    position:relative;
+    width:100px;
+    height:100px;
+    background-color:transparent;
 
-animation-name: is-rotating;
-animation-duration: 1s;
-animation-iteration-count: infinite;
-position: fixed;
-width:50px;
-height:50px;
-border:12px solid #E4EEE9;
-border-radius: 50%;
-
-
-border-top-color:#19B269;
+    
 }
 
 .loader-dim{
     position: fixed;
     background-color: black;
     opacity: 0.2;
+    top:0;
+    left:0;
     width:100%;
     height:100%;
-
-}
-
-@keyframes is-rotating {
     
-  to {transform:rotate(1turn)}
+
 }
 
-.field-icon{
+
+.form-group i{
     position:absolute;
-    top:20px;
+    top:32px;
     right:12px;
-    font-family: Poppins;
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 600;
-    visibility:hidden;
+    visibility: hidden;
+    
 }
 
 small{
     visibility: hidden;
+    font-family: Poppins;
+    color: #ff4336;
 }
 
 .form-group.success input{
     border-color: #19B269;
 }
+.form-group.success i.fa-check-circle{
+    color: #19B269;
+    visibility: visible;
+}
 
 .form-group.error input{
-    border-color :tomato;
+    border-color :#ff4336;
+
+}
+
+.form-group.error i.fa-exclamation-circle{
+    color: #ff4336;
+    visibility: visible;
+}
+
+.form-group.error small{
+    visibility: visible;
+}
+
+.loading{
+    position:fixed;
+    display :none;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    
+}
+
+@keyframes animateBg{
+    0%
+    {
+        transform: scale(1);
+    }
+
+    100%
+    {
+        transform: scale(0);
+    }
+}
+
+.loader span{
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    
+    transform: rotate(calc(18deg * var(--i)))
+    
+}
+
+.loader span::before{
+    content:'';
+    position: absolute;
+    top:0;
+    left:0;
+    width:15px;
+    height:15px;
+    border-radius: 50%;
+    background:#19B269;
+    box-shadow:0 0 10px #19B269,
+    ;
+    transform:scale(0);
+    animation: animateBg 2s linear infinite;
+    animation-delay: calc(0.1s * var(--i))
 }
