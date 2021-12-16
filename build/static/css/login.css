@@ -1,0 +1,130 @@
+body {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+background-color: #19B269;
+}
+
+.wrapper{
+min-width:300px;
+height:fit-content;
+background-color: #FFFFFF;
+padding:1.8rem;
+padding-top:0;
+
+border-radius: 8px;
+}
+
+.title{
+font-family: Poppins;
+font-style: normal;
+font-weight: 600;
+font-size: 28px;
+letter-spacing: -0.24px;
+
+}
+
+.form-field{
+width: 100%;
+
+background: #E4EEE9;
+border-radius: 4px;
+border:solid transparent;
+outline:none;
+padding: 0.6rem 0.9rem;
+}
+
+.form-group{
+width:100%;
+position:relative;
+}
+
+.field-label{
+font-family: Poppins;
+font-style: normal;
+font-weight: 600;
+font-size: 16px;
+
+}
+
+.spacing{
+opacity:0;
+height:4px;
+}
+
+.button-text{
+font-family: Poppins;
+font-style: normal;
+font-weight: 600;
+font-size: 16px;
+}
+
+.field-button{
+background: #163124;
+border:none;
+outline:none;
+border-radius: 4px;
+padding: 4px 16px;
+width: 100%;
+color : #FFFF;
+cursor:pointer;
+transition-duration: 0.4s;
+}
+
+.field-button:hover{
+opacity:0.8;
+}
+.field-button:active{
+opacity:1;
+}
+
+.c-loader{
+
+animation-name: is-rotating;
+animation-duration: 1s;
+animation-iteration-count: infinite;
+position: fixed;
+width:50px;
+height:50px;
+border:12px solid #E4EEE9;
+border-radius: 50%;
+
+
+border-top-color:#19B269;
+}
+
+.loader-dim{
+    position: fixed;
+    background-color: black;
+    opacity: 0.2;
+    width:100%;
+    height:100%;
+
+}
+
+@keyframes is-rotating {
+    
+  to {transform:rotate(1turn)}
+}
+
+.field-icon{
+    position:absolute;
+    top:20px;
+    right:12px;
+    font-family: Poppins;
+    font-size: 28px;
+    font-weight: 600;
+    visibility:hidden;
+}
+
+small{
+    visibility: hidden;
+}
+
+.form-group.success input{
+    border-color: #19B269;
+}
+
+.form-group.error input{
+    border-color :tomato;
+}

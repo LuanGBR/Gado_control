@@ -1,90 +1,18 @@
+{% load static %}
+
 <html>
 <head>
+
     <title>Login</title>
+    <script src="https://use.fontawesome.com/9a87bb795c.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+<script src="https://use.fontawesome.com/9a87bb795c.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
 </head>
 <style>
-    body {
-        display:flex;
-        justify-content:center;
-        align-items:center;
-    background-color: #19B269;
-  }
-
-.wrapper{
-    min-width:300px;
-    height:fit-content;
-    background-color: #FFFFFF;
-    padding:1.8rem;
-    padding-top:0;
     
-    border-radius: 8px;
-}
-
-.title{
-    font-family: Poppins;
-font-style: normal;
-font-weight: 600;
-font-size: 28px;
-letter-spacing: -0.24px;
-
-}
-
-.form-field{
-    width: 100%;
-
-    background: #E4EEE9;
-    border-radius: 4px;
-    border:none;
-    outline:none;
-    padding: 0.6rem 0.9rem;
-}
-
-.form-group{
-    width:100%;
-}
-
-.field-label{
-    font-family: Poppins;
-    font-style: normal;
-    font-weight: 600;
-    font-size: 16px;
-    
-}
-
-.spacing{
-    opacity:0;
-    height:4px;
-}
-
-.button-text{
-    font-family: Poppins;
-    font-style: normal;
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.field-button{
-    background: #163124;
-    border:none;
-    outline:none;
-    border-radius: 4px;
-    padding: 4px 16px;
-    width: 100%;
-    color : #FFFF;
-    cursor:pointer;
-    transition-duration: 0.4s;
-}
-
-.field-button:hover{
-    opacity:0.8;
-}
-.field-button:active{
-    opacity:1;
-}
-
 </style>
 <body>
     <div class='Wrapper'>
@@ -94,26 +22,33 @@ letter-spacing: -0.24px;
     <div class="container" >
         <form method="POST" action="/login">
             <h2 class="title">Easy Farm</h2>
-            <div class="form-group">
+            <div class="form-group success">
                 <label class="field-label">Username</label><br>
                 <input type="text" class="form-field" name="username" required>
+                <div class="field-icon">!</div>
+                <small>Error message</small>
             </div>
             <div class="spacing"></div>
-            <div class="form-group" style="height: 50px;">
-                <div style="height: 10px;"></div>
+            <div class="form-group error" >
+                
                 <label class="field-label">Senha:</label><br>
+                
                 <input type="password" class="form-field" name="password" required>
+                <div class="field-icon">!</div>
+                <small>Error message</small>
             </div>
             <div class="spacing"></div>
             <div class="spacing"></div>
             <div class="spacing"></div>
                 <div class="form-group">
-                    <div style="height: 30px;"></div>
+                    
                     <button type="submit" class="field-button"  onclick="load()" ><h2 class="button-text">Entrar</h2></button>
                 </div>
             
         
     </div>
 </div>
+<div class="loader-dim"></div>
+<div class="c-loader"></div>
 </body>
 </html>
