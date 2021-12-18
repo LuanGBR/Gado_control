@@ -77,8 +77,11 @@ def DetailView(request, pk):
             'gestacoes': str(cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id).count()),
             'pesos':str(ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries),
             'observacoes':str(cabecagado.objects.get(id=pk).observacoes),
-            'vacinas':vacinas_list
+            'vacinas':vacinas_list,
+            "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
+                      "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
             }
+
             resposta_json = json.dumps(context,indent=3)
             return HttpResponse(resposta_json,content_type='aplication/json')
 
