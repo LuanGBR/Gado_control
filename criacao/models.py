@@ -66,7 +66,7 @@ class cabecagado(models.Model):
     def get_last_peso(self):
         try:
             pesos = self.time_series.split("\n")
-            last = pesos.split(",")[1]
+            last = float(pesos.split(",")[1])
         except: 
             return None            
         return last
