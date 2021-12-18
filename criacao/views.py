@@ -377,7 +377,15 @@ def CabecaListView(request):
 def Criar_cabeça(request):
     if request.user.is_authenticated:
         if request.method=="GET":
-            return get_brincosView(request)
+            brincos = []
+            matrizes = []
+            for i in matriz.objects.all():
+                matrizes.append({"id":i.id,"identificação":str(i)})
+            for i in brinco.objects.all():
+                brincos.append({"id":i.id, "cor_nome":i.cor_nome, "cor_HEX":i.cor_hex})
+
+            resposta = { "matrizes":matrizes,"brincos":brincos}
+            return HttpResponse(json.dumps(resposta,indent=4),content_type="application/json")
         if request.method=="POST":
             s = request.POST.get("tipo")
             cabeca = cabecagado()
