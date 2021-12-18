@@ -410,35 +410,36 @@ def Criar_cabeça(request):
             resposta = { "matrizes":matrizes,"brincos":brincos}
             return HttpResponse(json.dumps(resposta,indent=4),content_type="application/json")
         if request.method=="POST":
-            s = request.POST.get("tipo")
+            data = json.loads(request.body.decode('utf-8'))
+            s = data["tipo"]
             cabeca = cabecagado()
-            cabeca.n_etiqueta = request.POST.get("n_etiqueta")
-            print("tipooooo", request.body)
-            cabeca.brinco = brinco.objects.get(id=request.POST.get("brinco"))
-            cabeca.nascimento = request.POST.get("nascimento")
+            cabeca.n_etiqueta = data["n_etiqueta"]
+            
+            cabeca.brinco = brinco.objects.get(id=data["brinco"])
+            cabeca.nascimento = data["nascimento"]
             if s == "1":
                 cabeca.sexo = cabecagado.MALE
             elif s == "2":
                 cabeca.sexo = cabecagado.FEMALE
             elif s == "3":
-                cabeca.sexo = request.POST.get("sexo")
-            cabeca.tipo = [cabecagado.BOI,cabecagado.MATRIZ,cabecagado.CRIA][int(request.POST.get("tipo"))-1]
+                cabeca.sexo = data["sexo"]
+            cabeca.tipo = [cabecagado.BOI,cabecagado.MATRIZ,cabecagado.CRIA][int(data["tipo"])-1]
             cabeca.author = get_user(request)
-            cabeca.observacoes = request.POST.get("observacoes")
+            cabeca.observacoes = data["observacoes"]
             cabeca.save()
             ficha = ficha_medica()
             ficha.cabecagado = cabeca
-            ficha.pesos_timeseries = request.POST.get("timeseries")
+            ficha.pesos_timeseries = data["timeseries"]
             ficha.save()
             vac = vacinas()
             vac.ficha_medica = ficha
-            vac.febre_aftosa = bool(request.POST.get("febre_aftosa"))
-            vac.brucelose = bool(request.POST.get("brucelose"))
-            vac.clostridioses = bool(request.POST.get("clostridioses"))
-            vac.botulismo = bool(request.POST.get("botulismo"))
-            vac.leptospirose = bool(request.POST.get("leptospirose"))
-            vac.raiva = bool(request.POST.get("raiva"))
-            vac.ibr_bvd = bool(request.POST.get("ibr_bvd"))
+            vac.febre_aftosa = bool(data["febre_aftosa"])
+            vac.brucelose = bool(data["brucelose"])
+            vac.clostridioses = bool(data["clostridioses"])
+            vac.botulismo = bool(data["botulismo"])
+            vac.leptospirose = bool(data["leptospirose"])
+            vac.raiva = bool(data["raiva"])
+            vac.ibr_bvd = bool(data["ibr_bvd"])
             vac.ficha_medica = ficha
             vac.save()
             if s == "1":
@@ -450,7 +451,7 @@ def Criar_cabeça(request):
             elif s =="3":
                 obj = cria()
                 obj.cabecagado = cabeca
-                obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
+                obj.matriz = matriz.objects.get(id=data["matriz"])
             obj.save()
             return redirect(f"/cabeca/{cabeca.id}/view")
 
