@@ -67,17 +67,19 @@ def DetailView(request, pk):
             media = sumdeltas/numdeltas
         else:
             media = 0
+        for i in range(len(nascimentos_crias)):
+            nascimentos_crias[i] = nascimentos_crias[i].strftime("%Y-%m-%d")
         context = {'id':str(pk),
         'tipo' : str(tipo),
         'identificacao':str(identificacao),
-        'nascimentos_crias':str(nascimentos_crias),
-        'tempo_crias':str(media),
+        'nascimentos_crias':nascimentos_crias,
+        'tempo_crias':media.days,
         'gestacoes': str(cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id).count()),
         'pesos':str(ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries),
         'observacoes':str(cabecagado.objects.get(id=pk).observacoes),
         'vacinas':vacinas_list
         }
-        resposta_json = json.dumps(context,indent=3)
+        resposta_json = json.dumps(context,indent=4)
         return HttpResponse(resposta_json,content_type='aplication/json')
 
 
