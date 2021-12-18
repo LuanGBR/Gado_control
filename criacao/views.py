@@ -34,6 +34,7 @@ def DetailView(request, pk):
         context = {'id':pk,
         'tipo' : tipo,
         'identificacao': identificacao,
+        'n_etiqueta':cabecagado.objects.get(id=pk).n_etiqueta,
         'pesos': ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes': cabecagado.objects.get(id=pk).observacoes,
         'vacinas': vacinas_list,
@@ -41,7 +42,7 @@ def DetailView(request, pk):
         'sexo': cabecagado.objects.get(id=pk).sexo,
         'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
         'vendido':cabecagado.objects.get(id=pk).vendido,
-        "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(), 
+        "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(),
         "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
                     "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
         }
@@ -55,6 +56,7 @@ def DetailView(request, pk):
         'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
         'vendido':cabecagado.objects.get(id=pk).vendido,
         'identificacao':identificacao,
+        'n_etiqueta':cabecagado.objects.get(id=pk).n_etiqueta,
         'matriz': cria.objects.get(cabecagado_id=pk).matriz_id,
         'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes':cabecagado.objects.get(id=pk).observacoes,
@@ -86,6 +88,7 @@ def DetailView(request, pk):
         if media != 0:
             context = {'id':str(pk),
             'tipo' : str(tipo),
+            'n_etiqueta':cabecagado.objects.get(id=pk).n_etiqueta,
             'sexo': cabecagado.objects.get(id=pk).sexo,
             'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
             'vendido':cabecagado.objects.get(id=pk).vendido,
@@ -104,6 +107,7 @@ def DetailView(request, pk):
         else:
             context = {'id':str(pk),
             'tipo' : str(tipo),
+            'n_etiqueta':cabecagado.objects.get(id=pk).n_etiqueta,
             'sexo': cabecagado.objects.get(id=pk).sexo,
             'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
             'vendido':cabecagado.objects.get(id=pk).vendido,
@@ -119,7 +123,7 @@ def DetailView(request, pk):
             "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
                         "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
             }
-        
+
         resposta_json = json.dumps(context,indent=4)
         return HttpResponse(resposta_json,content_type='aplication/json')
 
@@ -395,14 +399,13 @@ def CabecaListView(request):
 
 
 def Criar_cabeça(request):
-    if request.user.is_authenticated:
         if request.method=="GET":
             brincos = []
             matrizes = []
             for i in matriz.objects.all():
-                matrizes.append({"id":i.id,"identificação":str(i)})
+                matrizes.append({"id":i.id,"identificacao":str(i)})
             for i in brinco.objects.all():
-                brincos.append({"id":i.id, "cor_nome":i.cor_nome, "cor_HEX":i.cor_hex})
+                brincos.append({"id":i.id, "cor_nome":i.cor_nome, "cor_HEX":i.cor})
 
             resposta = { "matrizes":matrizes,"brincos":brincos}
             return HttpResponse(json.dumps(resposta,indent=4),content_type="application/json")
@@ -410,6 +413,7 @@ def Criar_cabeça(request):
             s = request.POST.get("tipo")
             cabeca = cabecagado()
             cabeca.n_etiqueta = request.POST.get("n_etiqueta")
+            print("tipooooo", request.body)
             cabeca.brinco = brinco.objects.get(id=request.POST.get("brinco"))
             cabeca.nascimento = request.POST.get("nascimento")
             if s == "1":
@@ -449,8 +453,7 @@ def Criar_cabeça(request):
                 obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
             obj.save()
             return redirect(f"/cabeca/{cabeca.id}/view")
-    else:
-        return redirect(f"/login")
+
 def EditView(request,pk):
     if request.method=="GET":
         cabeca = cabecagado.objects.get(id=pk)
@@ -481,7 +484,7 @@ def EditView(request,pk):
                         "ibr_bvd" : vac.br_bvd
                         }
                    }
-        
+
         resposta = json.dumps(resposta,indent=4)
         return HttpResponse(resposta)
     if request.method == "POST":
