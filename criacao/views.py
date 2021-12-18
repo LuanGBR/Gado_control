@@ -420,6 +420,7 @@ def Criar_cabeça(request):
                 cabeca.sexo = request.POST.get("sexo")
             cabeca.tipo = [cabecagado.BOI,cabecagado.MATRIZ,cabecagado.CRIA][int(request.POST.get("tipo"))-1]
             cabeca.author = get_user(request)
+            cabeca.observacoes = request.POST.get("observacoes")
             cabeca.save()
             ficha = ficha_medica()
             ficha.cabecagado = cabeca
