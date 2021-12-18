@@ -46,7 +46,7 @@ def DetailView(request, pk):
                     "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
         }
         resposta_json = json.dumps(context,indent=3)
-        return HttpResponse(resposta_json)#,content_type='aplication/json')
+        return HttpResponse(resposta_json,content_type='aplication/json')
 
     elif(tipo == "Bezerro"):
         context = {'id':pk,
@@ -65,7 +65,7 @@ def DetailView(request, pk):
                     "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
         }
         resposta_json = json.dumps(context,indent=3)
-        return HttpResponse(resposta_json)#,content_type='aplication/json')
+        return HttpResponse(resposta_json,content_type='aplication/json')
 
     else:
         nascimentos_crias = []
@@ -121,7 +121,7 @@ def DetailView(request, pk):
             }
         
         resposta_json = json.dumps(context,indent=4)
-        return HttpResponse(resposta_json)#,content_type='aplication/json')
+        return HttpResponse(resposta_json,content_type='aplication/json')
 
 
 def TransacaoEdit(request,pk):
