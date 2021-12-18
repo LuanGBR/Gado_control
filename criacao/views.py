@@ -179,36 +179,37 @@ def TransacaoList(request):
         }
 
         resposta_json = json.dumps(context,indent=4)
-        return HttpResponse(resposta_json)#,content_type='aplication/json')
+        return HttpResponse(resposta_json,content_type='aplication/json')
     else:
         return redirect(f"/login")
 
 
 def TransacaoDetail(request, pk):
-    if request.user.is_authenticated:
-        transacionadas = []
-        transacionadas = cabeca_transacionada.objects.filter(transacao_id = pk)
-        tags = []
-        for i in transacionadas:
-            tags.append(str(cabecagado.__str__(cabecagado.objects.get(id=i.cabecagado_id))))
-            if i != transacionadas[len(transacionadas)-1]:
-                tags.append(", ")
-        tags = "".join(tags)
-        tipo = transacao.objects.get(id=pk).tipo
-        context = {
-            'id': pk,
-            'tipo': tipo,
-            'valor': transacao.objects.get(id=pk).valor,
-            'data': str(transacao.objects.get(id=pk).data),
-            'envolvido': transacao.objects.get(id=pk).envolvido,
-            'tags': tags
-        }
+    if request.method == "GET":
+        if request.user.is_authenticated:
+            transacionadas = []
+            transacionadas = cabeca_transacionada.objects.filter(transacao_id = pk)
+            tags = []
+            for i in transacionadas:
+                tags.append(str(cabecagado.__str__(cabecagado.objects.get(id=i.cabecagado_id))))
+                if i != transacionadas[len(transacionadas)-1]:
+                    tags.append(", ")
+            tags = "".join(tags)
+            tipo = transacao.objects.get(id=pk).tipo
+            context = {
+                'id': pk,
+                'tipo': tipo,
+                'valor': transacao.objects.get(id=pk).valor,
+                'data': str(transacao.objects.get(id=pk).data),
+                'envolvido': transacao.objects.get(id=pk).envolvido,
+                'tags': tags
+            }
 
-        resposta_json = json.dumps(context,indent=3)
-        return HttpResponse(resposta_json,content_type='aplication/json')
+            resposta_json = json.dumps(context,indent=3)
+            return HttpResponse(resposta_json,content_type='aplication/json')
 
-    else:
-        return redirect(f"/login")
+        else:
+            return redirect(f"/login")
 
 
 def LoginView(request):
