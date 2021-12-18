@@ -37,7 +37,7 @@ def DetailView(request, pk):
         'pesos': ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes': cabecagado.objects.get(id=pk).observacoes,
         'vacinas': vacinas_list,
-        'nascimento':cabecagado.objects.get(id=pk).nascimento,
+        'nascimento':cabecagado.objects.get(id=pk).nascimento.strftime("%Y-%m-%d"),
         'sexo': cabecagado.objects.get(id=pk).sexo,
         'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
         'vendido':cabecagado.objects.get(id=pk).vendido,
@@ -46,7 +46,7 @@ def DetailView(request, pk):
                     "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
         }
         resposta_json = json.dumps(context,indent=3)
-        return HttpResponse(resposta_json,content_type='aplication/json')
+        return HttpResponse(resposta_json)#,content_type='aplication/json')
 
     elif(tipo == "Bezerro"):
         context = {'id':pk,
@@ -59,13 +59,13 @@ def DetailView(request, pk):
         'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes':cabecagado.objects.get(id=pk).observacoes,
         'vacinas':vacinas_list,
-        'nascimento':cabecagado.objects.get(id=pk).nascimento,
+        'nascimento':cabecagado.objects.get(id=pk).nascimento.strftime("%Y-%m-%d"),
         "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(),
         "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
                     "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
         }
         resposta_json = json.dumps(context,indent=3)
-        return HttpResponse(resposta_json,content_type='aplication/json')
+        return HttpResponse(resposta_json)#,content_type='aplication/json')
 
     else:
         nascimentos_crias = []
@@ -83,25 +83,45 @@ def DetailView(request, pk):
             media = 0
         for i in range(len(nascimentos_crias)):
             nascimentos_crias[i] = nascimentos_crias[i].strftime("%Y-%m-%d")
-        context = {'id':str(pk),
-        'tipo' : str(tipo),
-        'sexo': cabecagado.objects.get(id=pk).sexo,
-        'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
-        'vendido':cabecagado.objects.get(id=pk).vendido,
-        'nascimento':cabecagado.objects.get(id=pk).nascimento,
-        'identificacao':str(identificacao),
-        'nascimentos_crias':nascimentos_crias,
-        'tempo_crias':media.days,
-        'gestacoes': str(cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id).count()),
-        'pesos':str(ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries),
-        'observacoes':str(cabecagado.objects.get(id=pk).observacoes),
-        'vacinas':vacinas_list,
-        "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(),
-        "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
-                    "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
-        }
+        if media != 0:
+            context = {'id':str(pk),
+            'tipo' : str(tipo),
+            'sexo': cabecagado.objects.get(id=pk).sexo,
+            'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
+            'vendido':cabecagado.objects.get(id=pk).vendido,
+            'nascimento':cabecagado.objects.get(id=pk).nascimento.strftime("%Y-%m-%d"),
+            'identificacao':str(identificacao),
+            'nascimentos_crias':nascimentos_crias,
+            'tempo_crias':media.days,
+            'gestacoes': str(cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id).count()),
+            'pesos':str(ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries),
+            'observacoes':str(cabecagado.objects.get(id=pk).observacoes),
+            'vacinas':vacinas_list,
+            "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(),
+            "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
+                        "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
+            }
+        else:
+            context = {'id':str(pk),
+            'tipo' : str(tipo),
+            'sexo': cabecagado.objects.get(id=pk).sexo,
+            'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
+            'vendido':cabecagado.objects.get(id=pk).vendido,
+            'nascimento':cabecagado.objects.get(id=pk).nascimento.strftime("%Y-%m-%d"),
+            'identificacao':str(identificacao),
+            'nascimentos_crias':nascimentos_crias,
+            'tempo_crias':media,
+            'gestacoes': str(cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id).count()),
+            'pesos':str(ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries),
+            'observacoes':str(cabecagado.objects.get(id=pk).observacoes),
+            'vacinas':vacinas_list,
+            "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(),
+            "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
+                        "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
+            }
+        
         resposta_json = json.dumps(context,indent=4)
-        return HttpResponse(resposta_json,content_type='aplication/json')
+        return HttpResponse(resposta_json)#,content_type='aplication/json')
 
 
 def TransacaoEdit(request,pk):
