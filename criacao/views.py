@@ -33,10 +33,11 @@ def DetailView(request, pk):
     if( tipo == "Boi"):
         context = {'id':pk,
         'tipo' : tipo,
-        'identificacao':identificacao,
-        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
-        'observacoes':cabecagado.objects.get(id=pk).observacoes,
-        'vacinas':vacinas_list,
+        'identificacao': identificacao,
+        'pesos': ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
+        'observacoes': cabecagado.objects.get(id=pk).observacoes,
+        'vacinas': vacinas_list,
+        "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(), 
         "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
                     "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
         }
@@ -51,6 +52,7 @@ def DetailView(request, pk):
         'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes':cabecagado.objects.get(id=pk).observacoes,
         'vacinas':vacinas_list,
+        "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(),
         "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
                     "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
         }
@@ -80,6 +82,7 @@ def DetailView(request, pk):
         'pesos':str(ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries),
         'observacoes':str(cabecagado.objects.get(id=pk).observacoes),
         'vacinas':vacinas_list,
+        "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(),
         "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
                     "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
         }

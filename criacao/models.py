@@ -64,8 +64,11 @@ class cabecagado(models.Model):
         return  str(self.n_etiqueta) + "/" + str(self.brinco)
 
     def get_last_peso(self):
-        pesos = self.time_series.split("\n")
-        last = pesos.split(",")[1]
+        try:
+            pesos = self.time_series.split("\n")
+            last = pesos.split(",")[1]
+        except: 
+            return None            
         return last
 
 
