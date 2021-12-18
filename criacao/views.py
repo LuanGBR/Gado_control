@@ -34,6 +34,7 @@ def DetailView(request, pk):
         context = {'id':pk,
         'tipo' : tipo,
         'identificacao': identificacao,
+        'n_etiqueta':cabecagado.objects.get(id=pk).n_etiqueta,
         'pesos': ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes': cabecagado.objects.get(id=pk).observacoes,
         'vacinas': vacinas_list,
@@ -55,6 +56,7 @@ def DetailView(request, pk):
         'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
         'vendido':cabecagado.objects.get(id=pk).vendido,
         'identificacao':identificacao,
+        'n_etiqueta':cabecagado.objects.get(id=pk).n_etiqueta,
         'matriz': cria.objects.get(cabecagado_id=pk).matriz_id,
         'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes':cabecagado.objects.get(id=pk).observacoes,
@@ -86,6 +88,7 @@ def DetailView(request, pk):
         if media != 0:
             context = {'id':str(pk),
             'tipo' : str(tipo),
+            'n_etiqueta':cabecagado.objects.get(id=pk).n_etiqueta,
             'sexo': cabecagado.objects.get(id=pk).sexo,
             'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
             'vendido':cabecagado.objects.get(id=pk).vendido,
@@ -104,6 +107,7 @@ def DetailView(request, pk):
         else:
             context = {'id':str(pk),
             'tipo' : str(tipo),
+            'n_etiqueta':cabecagado.objects.get(id=pk).n_etiqueta,
             'sexo': cabecagado.objects.get(id=pk).sexo,
             'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
             'vendido':cabecagado.objects.get(id=pk).vendido,
