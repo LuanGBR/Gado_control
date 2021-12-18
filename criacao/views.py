@@ -358,27 +358,7 @@ def CabecaListView(request):
 def Criar_cabeça(request):
     if request.user.is_authenticated:
         if request.method=="GET":
-            sel = "bezerro_sel"
-            opt = 3
-            context = {}
-            if request.GET.get("selected"):
-                opt =int(request.GET.get("Tipo"))
-                sel = ["boi_sel","vaca_sel","bezerro_sel"][opt-1]
-                context["form"] = CabecagadoCreateForm(initial={"nascimento":datetime.date.today().strftime("%d/%m/%Y")})
-                if opt == 1:
-                    context["form"].fields["sexo"].disabled = True
-                    context["form"].fields["sexo"].initial = cabecagado.MALE
-                elif opt == 2:
-                    context["form"].fields["sexo"].disabled = True
-                    context["form"].fields["sexo"].initial = cabecagado.FEMALE
-                elif opt == 3:
-                    context["form_"] = CriaCreateForm()
-                context["form_vac"] = VacinasCreateForm()
-                context["form_pesos"] = PesosCreateForm()
-                context["mensagem"]="Adicionando " + ["novo touro:","nova vaca:","novo bezerro:"][opt-1]
-            context[sel]="selected"
-            context["tipo"]=str(opt)
-            return render(request,"cabecacreate.html",context)
+            return get_brincosView(request)
         if request.method=="POST":
             s = request.POST.get("tipo")
             cabeca = cabecagado()
