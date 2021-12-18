@@ -19,74 +19,72 @@ import json
 
 
 def DetailView(request, pk):
-    if request.user.is_authenticated:
-        tipo = cabecagado.objects.get(id=pk).tipo
-        identificacao = cabecagado.__str__(cabecagado.objects.get(id=pk))
-        vacinas_list = []
-        vacina_dic = {}
-        l = vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id = pk).id)
-        vacinas_list.append({"febre_aftosa":l.febre_aftosa})
-        vacinas_list.append({"brucelose":l.brucelose})
-        vacinas_list.append({"clostridioses":l.clostridioses})
-        vacinas_list.append({"botulismo":l.botulismo})
-        vacinas_list.append({"leptospirose":l.leptospirose})
-        vacinas_list.append({"raiva":l.raiva})
-        vacinas_list.append({"ibr_bvd":l.ibr_bvd})
-        if( tipo == "Boi"):
-            context = {'id':pk,
-            'tipo' : tipo,
-            'identificacao':identificacao,
-            'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
-            'observacoes':cabecagado.objects.get(id=pk).observacoes,
-            'vacinas':vacinas_list
-            }
-            resposta_json = json.dumps(context,indent=3)
-            return HttpResponse(resposta_json,content_type='aplication/json')
+    tipo = cabecagado.objects.get(id=pk).tipo
+    identificacao = cabecagado.__str__(cabecagado.objects.get(id=pk))
+    vacinas_list = []
+    l = vacinas.objects.get(ficha_medica_id = ficha_medica.objects.get(cabecagado_id = pk).id)
+    vacinas_list.append({"febre_aftosa":l.febre_aftosa})
+    vacinas_list.append({"brucelose":l.brucelose})
+    vacinas_list.append({"clostridioses":l.clostridioses})
+    vacinas_list.append({"botulismo":l.botulismo})
+    vacinas_list.append({"leptospirose":l.leptospirose})
+    vacinas_list.append({"raiva":l.raiva})
+    vacinas_list.append({"ibr_bvd":l.ibr_bvd})
+    if( tipo == "Boi"):
+        context = {'id':pk,
+        'tipo' : tipo,
+        'identificacao':identificacao,
+        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
+        'observacoes':cabecagado.objects.get(id=pk).observacoes,
+        'vacinas':vacinas_list,
+        "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
+                    "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
+        }
+        resposta_json = json.dumps(context,indent=3)
+        return HttpResponse(resposta_json,content_type='aplication/json')
 
-        elif(tipo == "Bezerro"):
-            context = {'id':pk,
-            'tipo' : tipo,
-            'identificacao':identificacao,
-            'matriz': cria.objects.get(cabecagado_id=pk).matriz_id,
-            'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
-            'observacoes':cabecagado.objects.get(id=pk).observacoes,
-            'vacinas':vacinas_list
-            }
-            resposta_json = json.dumps(context,indent=3)
-            return HttpResponse(resposta_json,content_type='aplication/json')
-
-        else:
-            nascimentos_crias = []
-            crias = cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id)
-            for c in crias:
-                nascimentos_crias.append(cabecagado.objects.get(id = c.cabecagado_id).nascimento)
-            numdeltas = len(nascimentos_crias)-1
-            sumdeltas = timedelta(seconds=0)
-            if len(nascimentos_crias) > 1:
-                for i in range(len(nascimentos_crias)-1):
-                    delta = abs(nascimentos_crias[i+1] - nascimentos_crias[i])
-                    sumdeltas += delta
-                media = sumdeltas/numdeltas
-            else:
-                media = 0
-            context = {'id':str(pk),
-            'tipo' : str(tipo),
-            'identificacao':str(identificacao),
-            'nascimentos_crias':str(nascimentos_crias),
-            'tempo_crias':str(media),
-            'gestacoes': str(cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id).count()),
-            'pesos':str(ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries),
-            'observacoes':str(cabecagado.objects.get(id=pk).observacoes),
-            'vacinas':vacinas_list,
-            "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
-                      "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
-            }
-
-            resposta_json = json.dumps(context,indent=3)
-            return HttpResponse(resposta_json,content_type='aplication/json')
+    elif(tipo == "Bezerro"):
+        context = {'id':pk,
+        'tipo' : tipo,
+        'identificacao':identificacao,
+        'matriz': cria.objects.get(cabecagado_id=pk).matriz_id,
+        'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
+        'observacoes':cabecagado.objects.get(id=pk).observacoes,
+        'vacinas':vacinas_list,
+        "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
+                    "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
+        }
+        resposta_json = json.dumps(context,indent=3)
+        return HttpResponse(resposta_json,content_type='aplication/json')
 
     else:
-        return redirect(f"/login")
+        nascimentos_crias = []
+        crias = cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id)
+        for c in crias:
+            nascimentos_crias.append(cabecagado.objects.get(id = c.cabecagado_id).nascimento)
+        numdeltas = len(nascimentos_crias)-1
+        sumdeltas = timedelta(seconds=0)
+        if len(nascimentos_crias) > 1:
+            for i in range(len(nascimentos_crias)-1):
+                delta = abs(nascimentos_crias[i+1] - nascimentos_crias[i])
+                sumdeltas += delta
+            media = sumdeltas/numdeltas
+        else:
+            media = 0
+        context = {'id':str(pk),
+        'tipo' : str(tipo),
+        'identificacao':str(identificacao),
+        'nascimentos_crias':str(nascimentos_crias),
+        'tempo_crias':str(media),
+        'gestacoes': str(cria.objects.filter(matriz_id = matriz.objects.get(cabecagado_id=pk).id).count()),
+        'pesos':str(ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries),
+        'observacoes':str(cabecagado.objects.get(id=pk).observacoes),
+        'vacinas':vacinas_list,
+        "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
+                    "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
+        }
+        resposta_json = json.dumps(context,indent=3)
+        return HttpResponse(resposta_json,content_type='aplication/json')
 
 
 def TransacaoEdit(request,pk):
