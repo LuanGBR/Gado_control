@@ -37,6 +37,10 @@ def DetailView(request, pk):
         'pesos': ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes': cabecagado.objects.get(id=pk).observacoes,
         'vacinas': vacinas_list,
+        'nascimento':cabecagado.objects.get(id=pk).nascimento,
+        'sexo': cabecagado.objects.get(id=pk).sexo,
+        'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
+        'vendido':cabecagado.objects.get(id=pk).vendido,
         "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(), 
         "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
                     "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
@@ -47,11 +51,15 @@ def DetailView(request, pk):
     elif(tipo == "Bezerro"):
         context = {'id':pk,
         'tipo' : tipo,
+        'sexo': cabecagado.objects.get(id=pk).sexo,
+        'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
+        'vendido':cabecagado.objects.get(id=pk).vendido,
         'identificacao':identificacao,
         'matriz': cria.objects.get(cabecagado_id=pk).matriz_id,
         'pesos':ficha_medica.objects.get(cabecagado_id=pk).pesos_timeseries,
         'observacoes':cabecagado.objects.get(id=pk).observacoes,
         'vacinas':vacinas_list,
+        'nascimento':cabecagado.objects.get(id=pk).nascimento,
         "ultimo_peso": cabecagado.objects.get(id=pk).get_last_peso(),
         "brinco":{"cor_HEX": cabecagado.objects.get(id=pk).brinco.cor,
                     "cor_nome": cabecagado.objects.get(id=pk).brinco.cor_nome}
@@ -77,6 +85,10 @@ def DetailView(request, pk):
             nascimentos_crias[i] = nascimentos_crias[i].strftime("%Y-%m-%d")
         context = {'id':str(pk),
         'tipo' : str(tipo),
+        'sexo': cabecagado.objects.get(id=pk).sexo,
+        'esta_vivo':cabecagado.objects.get(id=pk).esta_vivo,
+        'vendido':cabecagado.objects.get(id=pk).vendido,
+        'nascimento':cabecagado.objects.get(id=pk).nascimento,
         'identificacao':str(identificacao),
         'nascimentos_crias':nascimentos_crias,
         'tempo_crias':media.days,
