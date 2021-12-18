@@ -406,35 +406,37 @@ def Criar_cabeça(request):
         return redirect(f"/login")
 def EditView(request,pk):
     if request.method=="GET":
-        context={}
         cabeca = cabecagado.objects.get(id=pk)
-        initial = {"nascimento":cabeca.nascimento,
-                   "tipo" : cabeca.tipo,
-                   "sexo": cabeca.sexo,
-                   "n_etiqueta":cabeca.n_etiqueta,
-                   "brinco":cabeca.brinco,
-                   "esta_vivo":cabeca.esta_vivo,
-                   "observacoes":cabeca.observacoes,
-                   "vendido":cabeca.vendido,
-                    "morte":cabeca.morte,
-                    "causa_mortis":cabeca.causa_mortis
+        ficha =cabecagado.ficha_medica
+        vac = ficha.vacinas
+        resposta = {"cabeca":{
+                        "nascimento":cabeca.nascimento,
+                        "tipo" : cabeca.tipo,
+                        "sexo": cabeca.sexo,
+                        "n_etiqueta":cabeca.n_etiqueta,
+                        "brinco":cabeca.brinco,
+                        "esta_vivo":cabeca.esta_vivo,
+                        "observacoes":cabeca.observacoes,
+                        "vendido":cabeca.vendido,
+                        "morte":cabeca.morte,
+                        "causa_mortis":cabeca.causa_mortis
+                        },
+                    "ficha medica": {
+                        "peso_timeseries": ficha.peso_timeseries
+                        },
+                    "vacinas": {
+                        "febre_aftosa" : vac.febre_aftosa,
+                        "brucelose" : vac.brucelose,
+                        "clostridioses" : vac.clostridioses,
+                        "botulismo" : vac.botulismo,
+                        "leptospirose" : vac.leptospirose,
+                        "raiva" : vac.raiva,
+                        "ibr_bvd" : vac.br_bvd
+                        }
                    }
-        context["form"] = CabecagadoEditForm(initial=initial)
-        if cabeca.tipo == "Boi":
-            opt = 1
-        elif cabeca.tipo == "Bezerro":
-            context["form"].fields["tipo"].disabled = True
-            opt = 3
-            context["form_"] = CriaCreateForm(initial={"matriz":cabeca.cria.matriz})
-        elif cabeca.tipo == "Vaca":
-            opt = 2
-            context["form"].fields["tipo"].disabled = True
-        context["form"].fields["tipo"].disabled = True
-        context["form_vac"] = VacinasCreateForm()
-        context["form_pesos"] = PesosCreateForm()
-        context["mensagem"]="Editando " + ["touro ","vaca ","bezerro "][opt-1] + str(cabeca)
-        context["tipo"]=str(opt)
-        return render(request,"cabecaedit.html",context)
+        
+        resposta = json.dumps(resposta,indent=4)
+        return HttpResponse(resposta)
     if request.method == "POST":
         cabeca = cabecagado.objects.get(id=pk)  #Puxa a cabeca do tabela cabecagado pelo ID
         s = str(request.POST.get("tipo"))            #Pega o novo tipo
