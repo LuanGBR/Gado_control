@@ -164,13 +164,13 @@ def TransacaoCreate(request):
             return render(request, "transacoesCreate.html",context)
         if request.method =="POST":
             t = transacao()
-            stringTransacao = request.POST.get('gados')
-            gados_compra = str(stringTransacao).split('\r\n')
+            TransacaoInfo = json.loads(request.body.decode('utf-8'))
+            gados_compra = str(TransacaoInfo).split('\r\n')
             array_cabecas = [cabeca_transacionada() for i in range(len(gados_compra))]
-            t.valor = request.POST.get('valor')
-            t.envolvido = request.POST.get('envolvido')
-            t.data = request.POST.get('data')
-            t.tipo = request.POST.get('tipo')
+            t.valor = TransacaoInfo['valor']
+            t.envolvido = TransacaoInfo['envolvido']
+            t.data = TransacaoInfo['data']
+            t.tipo = TransacaoInfo['tipo']
             t.save()
             if t.tipo == "Compra":
                 i = 0
