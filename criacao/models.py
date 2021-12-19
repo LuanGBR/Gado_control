@@ -14,6 +14,7 @@ class userprofile(models.Model):
                             related_name="perfil")
   cargo = models.CharField(max_length=16)
 
+
 class brinco(models.Model):
     id = AutoField(primary_key=True)
     cor_nome = CharField(max_length=16,unique=True)
@@ -21,6 +22,7 @@ class brinco(models.Model):
 
     def __str__(self):
         return  self.cor_nome
+
 
 class cabecagado(models.Model):
     id = AutoField(primary_key=True)
@@ -72,11 +74,13 @@ class cabecagado(models.Model):
         return last
 
 
-    
-
 class boi(models.Model):
     id = AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
+
+    def __str__(self):
+        return  str(self.cabecagado.n_etiqueta) + "/" + str(self.cabecagado.brinco)
+
 
 class matriz(models.Model):
     id = AutoField(primary_key=True)
@@ -85,15 +89,23 @@ class matriz(models.Model):
     def __str__(self):
         return  str(self.cabecagado.n_etiqueta) + "/" + str(self.cabecagado.brinco)
 
+
 class cria(models.Model):
     id = AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
     matriz = ForeignKey(matriz,on_delete=models.CASCADE)
+    def __str__(self):
+        return  str(self.cabecagado.n_etiqueta) + "/" + str(self.cabecagado.brinco)
+
 
 class ficha_medica(models.Model):
     id=AutoField(primary_key=True)
     cabecagado = OneToOneField(cabecagado,on_delete=models.CASCADE)
     pesos_timeseries = CharField(max_length=2048,default="", null=True)
+
+    def __str__(self):
+        return "Ficha médica da cabeça de gado: " + str(self.cabecagado.n_etiqueta) + "/" + str(self.cabecagado.brinco)
+
 
 class vacinas(models.Model):
     id = AutoField(primary_key=True)
@@ -106,6 +118,8 @@ class vacinas(models.Model):
     raiva = BooleanField(default=False)
     ibr_bvd = BooleanField(default=False)
 
+    def __str__(self):
+        return "Vacinas da cabeça de gado: " + str(self.ficha_medica.cabecagado.n_etiqueta) + "/" + str(self.ficha_medica.cabecagado.brinco)
 
 
 class transacao(models.Model):
@@ -123,7 +137,14 @@ class transacao(models.Model):
     observacoes = CharField(max_length=100)
     gados = TextField(max_length=1000,blank=True)
 
+    def __str__(self):
+        return "Transação do dia: " + str(self.data)
+
+
 class cabeca_transacionada(models.Model):
     id = AutoField(primary_key=True)
     transacao = ForeignKey(transacao,on_delete=models.CASCADE)
     cabecagado = ForeignKey(cabecagado,on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "Cabeça transacionada da transação do dia: " + str(self.transacao.data)
