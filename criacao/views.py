@@ -284,8 +284,8 @@ def LandView(request):
 def HomeView(request):
 
     if request.method =="GET":
-        if not request.user.is_authenticated():
-            return redirect(f"/login")
+        if not request.user.is_authenticated:
+                        return redirect(f"/login")
         transacoes = transacao.objects.order_by("data")[:5]
         descricoes = []
         for t in transacoes:
@@ -336,7 +336,8 @@ def HomeView(request):
 
 
 def CabecaListView(request):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
+            print(request.user)
             return redirect(f"/login")
         if request.method == "GET":
             boi_checked = False
@@ -410,7 +411,7 @@ def CabecaListView(request):
 
 
 def Criar_cabeça(request):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return redirect(f"/login")
         if request.method=="GET":
             brincos = []
@@ -468,8 +469,8 @@ def Criar_cabeça(request):
             return redirect(f"/cattles/{cabeca.id}")
 
 def EditView(request,pk):
-    if not request.user.is_authenticated():
-            return redirect(f"/login")
+    if not request.user.is_authenticated:
+        return redirect(f"/login")
     if request.method=="GET":
         cabeca = cabecagado.objects.get(id=pk)
         ficha = ficha_medica.objects.get(cabecagado=cabeca)
@@ -554,7 +555,7 @@ def Create_brincos(request):
         return HttpResponse('')
 
 def Dar_baixa(request,pk):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
             return redirect(f"/login")
     if request.method=="POST":
         cabeca = cabecagado.objects.get(id=pk)
