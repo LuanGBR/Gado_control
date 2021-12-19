@@ -491,26 +491,14 @@ def EditView(request,pk):
     if request.method == "POST":
         cabeca = cabecagado.objects.get(id=pk)  #Puxa a cabeca do tabela cabecagado pelo ID
         data = json.loads(request.body.decode('utf-8'))
-        s = {"Boi":"1","Vaca":"2","Bezerro":"3"}[cabeca.tipo]            #Pega o novo tipo
+        s = {"Boi":"1","Vaca":"2","Bezerro":"3"}[cabeca.tipo]             #Pega o novo tipo
         cabeca.n_etiqueta = data["n_etiqueta"]  #Define o novo número da etiqueta para a cabeca
         cabeca.brinco = brinco.objects.get(id=str(data["brinco"]))
-        data = data["nascimento"]
-        cabeca.nascimento = data
-        checkBoxVivo = str(data["esta_vivo"])
-        checkBoxVendido = data["vendido"]
-        if checkBoxVivo == 'on':
-            cabeca.esta_vivo = True
-        else:
-            morte = data["morte"]
-            cabeca.morte = morte
-            cabeca.causa_mortis = str(data["causa_mortis"])
-        if checkBoxVendido == 'on':
-            cabeca.esta_vivo = False
-            cabeca.vendido = True
-        else:
-            cabeca.vendido = False
+        data_nascimento = data["nascimento"]
+        cabeca.nascimento = data_nascimento
         cabeca.observacoes = data["observacoes"]
-        cabeca.sexo = data["sexo"]
+        if s == "3":
+            cabeca.sexo = data["sexo"]
         cabeca.author = get_user(request)
         cabeca.save()
         ficha = ficha_medica.objects.get(cabecagado_id=pk)
@@ -527,7 +515,7 @@ def EditView(request,pk):
         vac.ibr_bvd = bool(data["ibr_bvd"])
         vac.save()
 
-        if s =="Bezerro":
+        if s =="3":
             obj = cria.objects.get(cabecagado_id=pk)
             obj.matriz = matriz.objects.get(id=data["matriz"])
             obj.save()
