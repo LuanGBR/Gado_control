@@ -212,7 +212,7 @@ def TransacaoCreate(request):
 
 def TransacaoList(request):
     if request.user.is_authenticated:
-        transacoes = transacao.objects.order_by("data")[:5]
+        transacoes = transacao.objects.order_by("data")
         descricoes = []
         for t in transacoes:
             n = cabeca_transacionada.objects.filter(transacao=t).count()
@@ -221,7 +221,7 @@ def TransacaoList(request):
         for u,v in zip(transacoes,descricoes):
             transacoes_list.append({"id":u.id,"descricao":v,"valor":u.valor,"tipo":u.tipo,"data":str(u.data)})
 
-        resposta_json = json.dumps(context,indent=4)
+        resposta_json = json.dumps({"transacoes":transacoes_list},indent=4)
         return HttpResponse(resposta_json,content_type='aplication/json')
     else:
         return redirect(f"/login")
