@@ -158,23 +158,17 @@ def TransacaoEdit(request,pk):
 
 def TransacaoCreate(request):
     if request.user.is_authenticated:
-        if request.method == "GET":
-            context = {}
-            context['form'] = TransacaoCreateForm()
-            return render(request, "transacoesCreate.html",context)
         if request.method =="POST":
             t = transacao()
             TransacaoInfo = json.loads(request.body.decode('utf-8'))
-            gados_compra = str(TransacaoInfo).split('\r\n')
-            array_cabecas = [cabeca_transacionada() for i in range(len(gados_compra))]
             t.valor = TransacaoInfo['valor']
             t.envolvido = TransacaoInfo['envolvido']
             t.data = TransacaoInfo['data']
             t.tipo = TransacaoInfo['tipo']
             t.save()
             if t.tipo == "Compra":
-                i = 0
-                for c in gados_compra:
+                novas_cabecas = TransacaoInfo["novas_cabecas"].split(";")
+                for c in novas_cabecas:
                     atributos = c.split(',') #ordem: n_etiqueta, nascimento, sexo, tipo, brinco_id
                     gado = cabecagado()
                     gado.n_etiqueta = str(atributos[0])
@@ -189,22 +183,21 @@ def TransacaoCreate(request):
                     gado.brinco_id = int(atributos[4])
                     gado.author_id = get_user(request).id
                     gado.save()
-                    array_cabecas[i].transacao_id = t.id
-                    array_cabecas[i].cabecagado_id = gado.id
-                    array_cabecas[i].save()
-                    i+=1
+                    line = cabeca_transacionada()
+                    line.transacao = t
+                    line.cabecagado = gado
+                    line.save()
                      #   n_etiqueta, nascimento, sexo, tipo, brinco_id
             elif t.tipo == "Venda":
-                i = 0
-                for v in gados_compra:
-                    identificacao = v.split('/') #n_etiqueta/n_brinco
-                    gado = cabecagado.objects.get(n_etiqueta = str(identificacao[0]),brinco_id = str(identificacao[1]))
+                id_list = TransacaoInfo["id_list"]
+                for v in id_list:
+                    gado = cabecagado.objects.get(id = v)
                     gado.vendido = 1
                     gado.save()
-                    array_cabecas[i].transacao_id = t.id
-                    array_cabecas[i].cabecagado_id = gado.id
-                    array_cabecas[i].save()
-                    i+=1
+                    line = cabeca_transacionada()
+                    line.transacao = t
+                    line.cabecagado = gado
+                    line.save()
             return redirect(f"/transacao/{t.id}/view")
     else:
         return redirect(f"/login")
