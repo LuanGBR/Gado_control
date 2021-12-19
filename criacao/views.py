@@ -1,5 +1,5 @@
 from django.core import validators
-from django.http.response import HttpResponse, HttpResponseNotFound
+from django.http.response import HttpResponse, HttpResponseNotFound, HttpResponseNotAllowed
 from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
@@ -132,6 +132,8 @@ def DetailView(request, pk):
 
 def TransacaoEdit(request,pk):
     if request.user.is_authenticated:
+        if not request.user.userprofile.cargo == "Dono":
+            return HttpResponseNotAllowed("")
         if request.method == "GET":
             context = {'id':pk}
             context['form'] = TransacaoCreateForm()
@@ -153,13 +155,15 @@ def TransacaoEdit(request,pk):
                 array_cabecas[i].transacao_id = pk
                 array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
                 array_cabecas[i].save()
-            return redirect(f"/transacao/{t.id}/view")
+            return redirect(f"/transactions/{t.id}")
     else:
         return redirect(f"/login")
 
 
 def TransacaoCreate(request):
     if request.user.is_authenticated:
+        if not request.user.userprofile.cargo == "Dono":
+            return HttpResponseNotAllowed("")
         if request.method =="POST":
             print(request.body)
             t = transacao()
@@ -202,7 +206,7 @@ def TransacaoCreate(request):
                     line.transacao = t
                     line.cabecagado = gado
                     line.save()
-            return redirect(f"/transacao/{t.id}/view")
+            return redirect(f"/transaction/{t.id}")
     else:
         return redirect(f"/login")
 
@@ -278,10 +282,10 @@ def LandView(request):
 
 
 def HomeView(request):
+
     if request.method =="GET":
-        # user = get_user()
-        # if user.is_anonymous:
-        #     return redirect("login")
+        if not request.user.is_authenticated():
+            return redirect(f"/login")
         transacoes = transacao.objects.order_by("data")[:5]
         descricoes = []
         for t in transacoes:
@@ -332,6 +336,8 @@ def HomeView(request):
 
 
 def CabecaListView(request):
+        if not request.user.is_authenticated():
+            return redirect(f"/login")
         if request.method == "GET":
             boi_checked = False
             matriz_checked = False
@@ -404,6 +410,8 @@ def CabecaListView(request):
 
 
 def Criar_cabeça(request):
+        if not request.user.is_authenticated():
+            return redirect(f"/login")
         if request.method=="GET":
             brincos = []
             matrizes = []
@@ -457,9 +465,11 @@ def Criar_cabeça(request):
                 obj.cabecagado = cabeca
                 obj.matriz = matriz.objects.get(id=data["matriz"])
             obj.save()
-            return redirect(f"/cabeca/{cabeca.id}/view")
+            return redirect(f"/cattles/{cabeca.id}")
 
 def EditView(request,pk):
+    if not request.user.is_authenticated():
+            return redirect(f"/login")
     if request.method=="GET":
         cabeca = cabecagado.objects.get(id=pk)
         ficha = ficha_medica.objects.get(cabecagado=cabeca)
@@ -544,6 +554,8 @@ def Create_brincos(request):
         return HttpResponse('')
 
 def Dar_baixa(request,pk):
+    if not request.user.is_authenticated():
+            return redirect(f"/login")
     if request.method=="POST":
         cabeca = cabecagado.objects.get(id=pk)
         data = json.loads(request.body.decode("utf-8"))
