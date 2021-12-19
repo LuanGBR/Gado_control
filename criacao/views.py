@@ -212,13 +212,14 @@ def TransacaoCreate(request):
 
 def TransacaoList(request):
     if request.user.is_authenticated:
-        transacoes = transacao.objects.all()
-        transacoes_list = []
+        transacoes = transacao.objects.order_by("data")[:5]
+        descricoes = []
         for t in transacoes:
-            transacoes_list.append({'id':t.id,'envolvido':t.envolvido,'data':str(t.data)})
-        context = {
-            "transacoes":transacoes_list
-        }
+            n = cabeca_transacionada.objects.filter(transacao=t).count()
+            descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
+        transacoes_list=[]
+        for u,v in zip(transacoes,descricoes):
+            transacoes_list.append({"id":u.id,"descricao":v,"valor":u.valor,"tipo":u.tipo,"data":str(u.data)})
 
         resposta_json = json.dumps(context,indent=4)
         return HttpResponse(resposta_json,content_type='aplication/json')
