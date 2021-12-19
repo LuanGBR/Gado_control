@@ -212,16 +212,16 @@ def TransacaoCreate(request):
 
 def TransacaoList(request):
     if request.user.is_authenticated:
-        transacoes = transacao.objects.order_by("data")[:5]
+        transacoes = transacao.objects.order_by("data")
         descricoes = []
         for t in transacoes:
             n = cabeca_transacionada.objects.filter(transacao=t).count()
-            descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
+            descricoes.append(f"{'Compra' if t.tipo=='Compra' else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
         transacoes_list=[]
         for u,v in zip(transacoes,descricoes):
             transacoes_list.append({"id":u.id,"descricao":v,"valor":u.valor,"tipo":u.tipo,"data":str(u.data)})
 
-        resposta_json = json.dumps(context,indent=4)
+        resposta_json = json.dumps({"transacoes":transacoes_list},indent=4)
         return HttpResponse(resposta_json,content_type='aplication/json')
     else:
         return redirect(f"/login")
@@ -230,25 +230,32 @@ def TransacaoList(request):
 def TransacaoDetail(request, pk):
     if request.method == "GET":
         if request.user.is_authenticated:
-            transacionadas = []
+            t = transacao.objects.get(id=pk)
+            n = cabeca_transacionada.objects.filter(transacao=t).count()
+            descricao = f"{'Compra' if t.tipo=='Compra' else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}"
             transacionadas = cabeca_transacionada.objects.filter(transacao_id = pk)
-            tags = []
+            cabecas = []
             for i in transacionadas:
-                tags.append(str(cabecagado.__str__(cabecagado.objects.get(id=i.cabecagado_id))))
-                if i != transacionadas[len(transacionadas)-1]:
-                    tags.append(", ")
-            tags = "".join(tags)
+                animal = i.cabecagado
+                cabecas.append({"id" : animal.id,
+                                "n_etiqueta" : animal.n_etiqueta,
+                                "tag": str(animal),
+                                "tipo": animal.tipo,
+                                "brinco":{ "cor_nome":animal.brinco.cor_nome,
+                                        "cor_hex":animal.brinco.cor}
+                                })
             tipo = transacao.objects.get(id=pk).tipo
             context = {
                 'id': pk,
+                "descricao":descricao,
                 'tipo': tipo,
-                'valor': transacao.objects.get(id=pk).valor,
-                'data': str(transacao.objects.get(id=pk).data),
-                'envolvido': transacao.objects.get(id=pk).envolvido,
-                'tags': tags
+                'valor': t.valor,
+                'data': str(t.data),
+                'envolvido': t.envolvido,
+                "cabecas": cabecas
             }
 
-            resposta_json = json.dumps(context,indent=3)
+            resposta_json = json.dumps(context,indent=4)
             return HttpResponse(resposta_json,content_type='aplication/json')
 
         else:
@@ -282,7 +289,7 @@ def HomeView(request):
         descricoes = []
         for t in transacoes:
             n = cabeca_transacionada.objects.filter(transacao=t).count()
-            descricoes.append(f"{'Compra' if t.tipo else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
+            descricoes.append(f"{'Compra' if t.tipo=='Compra' else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}")
         transacoes_list=[]
         for u,v in zip(transacoes,descricoes):
             transacoes_list.append({"id":u.id,"descricao":v,"valor":u.valor,"tipo":u.tipo,"data":str(u.data)})
@@ -491,26 +498,14 @@ def EditView(request,pk):
     if request.method == "POST":
         cabeca = cabecagado.objects.get(id=pk)  #Puxa a cabeca do tabela cabecagado pelo ID
         data = json.loads(request.body.decode('utf-8'))
-        s = {"Boi":"1","Vaca":"2","Bezerro":"3"}[cabeca.tipo]            #Pega o novo tipo
+        s = {"Boi":"1","Vaca":"2","Bezerro":"3"}[cabeca.tipo]             #Pega o novo tipo
         cabeca.n_etiqueta = data["n_etiqueta"]  #Define o novo número da etiqueta para a cabeca
         cabeca.brinco = brinco.objects.get(id=str(data["brinco"]))
-        data = data["nascimento"]
-        cabeca.nascimento = data
-        checkBoxVivo = str(data["esta_vivo"])
-        checkBoxVendido = data["vendido"]
-        if checkBoxVivo == 'on':
-            cabeca.esta_vivo = True
-        else:
-            morte = data["morte"]
-            cabeca.morte = morte
-            cabeca.causa_mortis = str(data["causa_mortis"])
-        if checkBoxVendido == 'on':
-            cabeca.esta_vivo = False
-            cabeca.vendido = True
-        else:
-            cabeca.vendido = False
+        data_nascimento = data["nascimento"]
+        cabeca.nascimento = data_nascimento
         cabeca.observacoes = data["observacoes"]
-        cabeca.sexo = data["sexo"]
+        if s == "3":
+            cabeca.sexo = data["sexo"]
         cabeca.author = get_user(request)
         cabeca.save()
         ficha = ficha_medica.objects.get(cabecagado_id=pk)
@@ -527,7 +522,7 @@ def EditView(request,pk):
         vac.ibr_bvd = bool(data["ibr_bvd"])
         vac.save()
 
-        if s =="Bezerro":
+        if s =="3":
             obj = cria.objects.get(cabecagado_id=pk)
             obj.matriz = matriz.objects.get(id=data["matriz"])
             obj.save()
