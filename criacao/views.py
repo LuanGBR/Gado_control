@@ -19,6 +19,8 @@ import json
 
 
 def DetailView(request, pk):
+    if not request.user.is_authenticated():
+        return redirect(f"/login")
     tipo = cabecagado.objects.get(id=pk).tipo
     identificacao = cabecagado.__str__(cabecagado.objects.get(id=pk))
     vacinas_list = []
@@ -540,4 +542,14 @@ def Create_brincos(request):
         new_brinco.cor_nome = data["cor_nome"]
         new_brinco.save()
         return HttpResponse('')
+
+def Dar_baixa(request,pk):
+    if request.method=="POST":
+        cabeca = cabecagado.objects.get(id=pk)
+        data = json.loads(request.body.decode("utf-8"))
+        cabeca.esta_vivo = 0
+        cabeca.morte = data["data_morte"]
+        cabeca.causa_mortis = data["causa_mortis"]
+        cabeca.save()
+        return HttpResponse("")
 
