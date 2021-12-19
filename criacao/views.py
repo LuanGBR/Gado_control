@@ -230,25 +230,32 @@ def TransacaoList(request):
 def TransacaoDetail(request, pk):
     if request.method == "GET":
         if request.user.is_authenticated:
-            transacionadas = []
+            t = transacao.objects.get(id=pk)
+            n = cabeca_transacionada.objects.filter(transacao=t).count()
+            descricao = f"{'Compra' if t.tipo=='Compra' else 'Venda'} de {n} cabeças {'de' if t.tipo else 'para'} {t.envolvido}"
             transacionadas = cabeca_transacionada.objects.filter(transacao_id = pk)
-            tags = []
+            cabecas = []
             for i in transacionadas:
-                tags.append(str(cabecagado.__str__(cabecagado.objects.get(id=i.cabecagado_id))))
-                if i != transacionadas[len(transacionadas)-1]:
-                    tags.append(", ")
-            tags = "".join(tags)
+                animal = i.cabecagado
+                cabecas.append({"id" : animal.id,
+                                "n_etiqueta" : animal.n_etiqueta,
+                                "tag": str(animal),
+                                "tipo": animal.tipo,
+                                "brinco":{ "cor_nome":animal.brinco.cor_nome,
+                                        "cor_hex":animal.brinco.cor}
+                                })
             tipo = transacao.objects.get(id=pk).tipo
             context = {
                 'id': pk,
+                "descricao":descricao,
                 'tipo': tipo,
-                'valor': transacao.objects.get(id=pk).valor,
-                'data': str(transacao.objects.get(id=pk).data),
-                'envolvido': transacao.objects.get(id=pk).envolvido,
-                'tags': tags
+                'valor': t.valor,
+                'data': str(t.data),
+                'envolvido': t.envolvido,
+                "cabecas": cabecas
             }
 
-            resposta_json = json.dumps(context,indent=3)
+            resposta_json = json.dumps(context,indent=4)
             return HttpResponse(resposta_json,content_type='aplication/json')
 
         else:
