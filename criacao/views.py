@@ -535,7 +535,11 @@ def get_brincosView(request):
 def get_cabecasAtivasView(request):
     if request.method == "GET":
         qs = cabecagado.objects.filter(esta_vivo=True)&cabecagado.objects.filter(vendido=False)
-        return HttpResponse(serializers.serialize('json',qs) , content_type="application/json")
+        cabecas = []
+        for i in qs:
+            cabecas.append({"id": i.id,"tag":str(i),"tipo":i.tipo,"cor_nome":i.brinco.cor_nome})
+            
+        return HttpResponse(json.dumps({"cabecas": cabecas}) , content_type="application/json")
 
 def Create_brincos(request):
     if request.method=="POST":
