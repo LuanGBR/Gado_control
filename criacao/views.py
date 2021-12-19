@@ -415,7 +415,7 @@ def Criar_cabeça(request):
             s = data["tipo"]
             cabeca = cabecagado()
             cabeca.n_etiqueta = data["n_etiqueta"]
-            
+
             cabeca.brinco = brinco.objects.get(id=data["brinco"])
             cabeca.nascimento = data["nascimento"]
             if s == "1":
@@ -430,7 +430,6 @@ def Criar_cabeça(request):
             cabeca.save()
             ficha = ficha_medica()
             ficha.cabecagado = cabeca
-            ficha.pesos_timeseries = data["timeseries"]
             ficha.save()
             vac = vacinas()
             vac.ficha_medica = ficha
@@ -459,22 +458,22 @@ def Criar_cabeça(request):
 def EditView(request,pk):
     if request.method=="GET":
         cabeca = cabecagado.objects.get(id=pk)
-        ficha =cabecagado.ficha_medica
-        vac = ficha.vacinas
+        ficha = ficha_medica.objects.get(cabecagado=cabeca)
+        vac = vacinas.objects.get(ficha_medica=ficha)
         resposta = {"cabeca":{
-                        "nascimento":cabeca.nascimento,
+                        "nascimento":cabeca.nascimento.strftime("%Y-%m-%d"),
                         "tipo" : cabeca.tipo,
                         "sexo": cabeca.sexo,
                         "n_etiqueta":cabeca.n_etiqueta,
-                        "brinco":cabeca.brinco,
+                        "brinco":cabeca.brinco.id,
                         "esta_vivo":cabeca.esta_vivo,
                         "observacoes":cabeca.observacoes,
                         "vendido":cabeca.vendido,
-                        "morte":cabeca.morte,
+                        "morte":cabeca.morte.strftime("%Y-%m-%d") if cabeca.morte else None,
                         "causa_mortis":cabeca.causa_mortis
                         },
                     "ficha medica": {
-                        "peso_timeseries": ficha.peso_timeseries
+                        "pesos_timeseries": ficha.pesos_timeseries
                         },
                     "vacinas": {
                         "febre_aftosa" : vac.febre_aftosa,
@@ -483,7 +482,7 @@ def EditView(request,pk):
                         "botulismo" : vac.botulismo,
                         "leptospirose" : vac.leptospirose,
                         "raiva" : vac.raiva,
-                        "ibr_bvd" : vac.br_bvd
+                        "ibr_bvd" : vac.ibr_bvd
                         }
                    }
 
