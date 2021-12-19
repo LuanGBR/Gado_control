@@ -489,48 +489,57 @@ def EditView(request,pk):
         return HttpResponse(resposta)
     if request.method == "POST":
         cabeca = cabecagado.objects.get(id=pk)  #Puxa a cabeca do tabela cabecagado pelo ID
-        s = str(request.POST.get("tipo"))            #Pega o novo tipo
-        cabeca.n_etiqueta = request.POST.get("n_etiqueta")  #Define o novo número da etiqueta para a cabeca
-        cabeca.brinco = brinco.objects.get(id=str(request.POST.get("brinco")))
-        data = request.POST.get("nascimento")
+        data = json.loads(request.body.decode('utf-8'))
+        s = str(data["tipo"])            #Pega o novo tipo
+        cabeca.n_etiqueta = data["n_etiqueta"]  #Define o novo número da etiqueta para a cabeca
+        cabeca.brinco = brinco.objects.get(id=str(data["brinco"]))
+        data = data["nascimento"]
         cabeca.nascimento = data
-        checkBoxVivo = str(request.POST.get("esta_vivo"))
-        checkBoxVendido = request.POST.get("vendido")
+        checkBoxVivo = str(data["esta_vivo"])
+        checkBoxVendido = data["vendido"]
         if checkBoxVivo == 'on':
             cabeca.esta_vivo = True
         else:
-            morte = request.POST.get("morte")
+            morte = data["morte"]
             cabeca.morte = morte
-            cabeca.causa_mortis = str(request.POST.get("causa_mortis"))
+            cabeca.causa_mortis = str(data["causa_mortis"])
         if checkBoxVendido == 'on':
             cabeca.esta_vivo = False
             cabeca.vendido = True
         else:
             cabeca.vendido = False
-        cabeca.observacoes = request.POST.get("observacoes")
-        cabeca.sexo = request.POST.get("sexo")
+        cabeca.observacoes = data["observacoes"]
+        cabeca.sexo = data["sexo"]
         cabeca.author = get_user(request)
         cabeca.save()
         ficha = ficha_medica.objects.get(cabecagado_id=pk)
         ficha.cabecagado = cabeca
-        ficha.pesos_timeseries = request.POST.get("timeseries")
+        ficha.pesos_timeseries = data["timeseries"]
         ficha.save()
         vac = vacinas.objects.get(ficha_medica_id=int(ficha_medica.objects.get(cabecagado_id=pk).id))
-        vac.febre_aftosa = bool(request.POST.get("febre_aftosa"))
-        vac.brucelose = bool(request.POST.get("brucelose"))
-        vac.botulismo = bool(request.POST.get("botulismo"))
-        vac.clostridioses = bool(request.POST.get("clostridioses"))
-        vac.raiva = bool(request.POST.get("raiva"))
-        vac.leptospirose = bool(request.POST.get("leptospirose"))
-        vac.ibr_bvd = bool(request.POST.get("ibr_bvd"))
+        vac.febre_aftosa = bool(data["febre_aftosa"])
+        vac.brucelose = bool(data["brucelose"])
+        vac.botulismo = bool(data["botulismo"])
+        vac.clostridioses = bool(data["clostridioses"])
+        vac.raiva = bool(data["raiva"])
+        vac.leptospirose = bool(data["leptospirose"])
+        vac.ibr_bvd = bool(data["ibr_bvd"])
         vac.save()
 
         if s =="Bezerro":
             obj = cria.objects.get(cabecagado_id=pk)
-            obj.matriz = matriz.objects.get(id=request.POST.get("matriz"))
+            obj.matriz = matriz.objects.get(id=data["matriz"])
             obj.save()
         return redirect(f"/cabeca/{cabeca.id}/view")
 
 def get_brincosView(request):
     if request.method == "GET":
         return HttpResponse(serializers.serialize('json',brinco.objects.all()) , content_type="application/json")
+
+def Create_brincos(request):
+    if request.method=="POST":
+        data = json.loads(request.body.decode("utf-8"))
+        new_brinco = brinco()
+        new_brinco.cor = data["cor_hex"]
+        new_brinco.cor_nome = data["cor_nome"]
+
