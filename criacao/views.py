@@ -532,9 +532,10 @@ def get_brincosView(request):
     if request.method == "GET":
         return HttpResponse(serializers.serialize('json',brinco.objects.all()) , content_type="application/json")
 
-def get_cabecasView(request):
+def get_cabecasAtivasView(request):
     if request.method == "GET":
-        return HttpResponse(serializers.serialize('json',cabecagado.objects.all()) , content_type="application/json")
+        qs = cabecagado.objects.filter(esta_vivo=True)&cabecagado.objects.filter(vendido=False)
+        return HttpResponse(serializers.serialize('json',qs) , content_type="application/json")
 
 def Create_brincos(request):
     if request.method=="POST":
