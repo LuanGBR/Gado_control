@@ -159,6 +159,7 @@ def TransacaoEdit(request,pk):
 def TransacaoCreate(request):
     if request.user.is_authenticated:
         if request.method =="POST":
+            print(request.body)
             t = transacao()
             TransacaoInfo = json.loads(request.body.decode('utf-8'))
             t.valor = TransacaoInfo['valor']
@@ -169,6 +170,7 @@ def TransacaoCreate(request):
             if t.tipo == "Compra":
                 novas_cabecas = TransacaoInfo["novas_cabecas"].split(";")
                 for c in novas_cabecas:
+                    print(c)
                     atributos = c.split(',') #ordem: n_etiqueta, nascimento, sexo, tipo, brinco_id
                     gado = cabecagado()
                     gado.n_etiqueta = str(atributos[0])
@@ -472,7 +474,7 @@ def EditView(request,pk):
                         "morte":cabeca.morte.strftime("%Y-%m-%d") if cabeca.morte else None,
                         "causa_mortis":cabeca.causa_mortis
                         },
-                    "ficha medica": {
+                    "ficha_medica": {
                         "pesos_timeseries": ficha.pesos_timeseries
                         },
                     "vacinas": {
@@ -497,8 +499,7 @@ def EditView(request,pk):
         data_nascimento = data["nascimento"]
         cabeca.nascimento = data_nascimento
         cabeca.observacoes = data["observacoes"]
-        if s == "3":
-            cabeca.sexo = data["sexo"]
+
         cabeca.author = get_user(request)
         cabeca.save()
         ficha = ficha_medica.objects.get(cabecagado_id=pk)
@@ -515,10 +516,7 @@ def EditView(request,pk):
         vac.ibr_bvd = bool(data["ibr_bvd"])
         vac.save()
 
-        if s =="3":
-            obj = cria.objects.get(cabecagado_id=pk)
-            obj.matriz = matriz.objects.get(id=data["matriz"])
-            obj.save()
+
         return redirect(f"/cabeca/{cabeca.id}/view")
 
 def get_brincosView(request):
@@ -531,7 +529,7 @@ def get_cabecasAtivasView(request):
         cabecas = []
         for i in qs:
             cabecas.append({"id": i.id,"tag":str(i),"tipo":i.tipo,"cor_nome":i.brinco.cor_nome})
-            
+
         return HttpResponse(json.dumps({"cabecas": cabecas}) , content_type="application/json")
 
 def Create_brincos(request):
@@ -540,4 +538,6 @@ def Create_brincos(request):
         new_brinco = brinco()
         new_brinco.cor = data["cor_hex"]
         new_brinco.cor_nome = data["cor_nome"]
+        new_brinco.save()
+        return HttpResponse('')
 
