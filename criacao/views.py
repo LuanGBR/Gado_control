@@ -19,7 +19,7 @@ import json
 
 
 def DetailView(request, pk):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return redirect(f"/login")
     tipo = cabecagado.objects.get(id=pk).tipo
     identificacao = cabecagado.__str__(cabecagado.objects.get(id=pk))
