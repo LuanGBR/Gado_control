@@ -132,7 +132,7 @@ def DetailView(request, pk):
 
 def TransacaoEdit(request,pk):
     if request.user.is_authenticated:
-        if not request.user.userprofile.cargo == "Dono":
+        if not userprofile.objects.get(user = request.user).cargo == "Dono":
             return HttpResponseNotAllowed("")
         if request.method == "GET":
             context = {'id':pk}
@@ -162,7 +162,7 @@ def TransacaoEdit(request,pk):
 
 def TransacaoCreate(request):
     if request.user.is_authenticated:
-        if not request.user.userprofile.cargo == "Dono":
+        if not userprofile.objects.get(user = request.user).cargo == "Dono":
             return HttpResponseNotAllowed("")
         if request.method =="POST":
             print(request.body)
@@ -568,3 +568,7 @@ def Dar_baixa(request,pk):
         cabeca.save()
         return HttpResponse("")
 
+def get_usuario(request):
+    user = request.user
+    resposta = {"username": str(user), "cargo":userprofile.objects.get(user = user).cargo}
+    return HttpResponse(json.loads(resposta,indent=4),content_type="application/json")
