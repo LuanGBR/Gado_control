@@ -6,7 +6,7 @@ from django.template import RequestContext, context
 from django.views.generic.edit import CreateView
 from criacao.forms import CabecagadoCreateForm, CriaCreateForm, PesosCreateForm, VacinasCreateForm, TransacaoCreateForm, CabecagadoEditForm
 
-from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas
+from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas, userprofile
 
 from django.contrib.auth.decorators import login_required
 
@@ -213,6 +213,8 @@ def TransacaoCreate(request):
 
 def TransacaoList(request):
     if request.user.is_authenticated:
+        if not userprofile.objects.get(user = request.user).cargo == "Dono":
+            return HttpResponseNotAllowed("")
         transacoes = transacao.objects.order_by("data")
         descricoes = []
         for t in transacoes:
