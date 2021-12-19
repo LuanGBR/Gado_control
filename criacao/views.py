@@ -535,3 +535,11 @@ def EditView(request,pk):
 def get_brincosView(request):
     if request.method == "GET":
         return HttpResponse(serializers.serialize('json',brinco.objects.all()) , content_type="application/json")
+
+def Create_brincos(request):
+    if request.method=="POST":
+        data = json.loads(request.body.decode("utf-8"))
+        new_brinco = brinco()
+        new_brinco.cor = data["cor_hex"]
+        new_brinco.cor_nome = data["cor_nome"]
+
