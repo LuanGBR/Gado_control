@@ -1,1 +1,1 @@
-web: gunicorn criacao.wsgi
+web: gunicorn Gado_control.wsgi
