@@ -1,0 +1,187 @@
+body {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+background-color: #19B269;
+}
+
+.wrapper{
+min-width:300px;
+height:fit-content;
+background-color: #FFFFFF;
+padding:1.8rem;
+padding-top:0;
+
+border-radius: 8px;
+}
+
+.title{
+font-family: Poppins;
+font-style: normal;
+font-weight: 600;
+font-size: 28px;
+letter-spacing: -0.24px;
+
+}
+
+.form-field{
+width: 100%;
+
+background: #E4EEE9;
+border-radius: 4px;
+border:solid transparent;
+outline:none;
+padding: 0.6rem 0.9rem;
+}
+
+.form-group{
+width:100%;
+position:relative;
+}
+
+.field-label{
+font-family: Poppins;
+font-style: normal;
+font-weight: 600;
+font-size: 16px;
+
+}
+
+.spacing{
+opacity:0;
+height:4px;
+}
+
+.button-text{
+font-family: Poppins;
+font-style: normal;
+font-weight: 600;
+font-size: 16px;
+}
+
+.field-button{
+background: #163124;
+border:none;
+outline:none;
+border-radius: 4px;
+padding: 4px 16px;
+width: 100%;
+color : #FFFF;
+cursor:pointer;
+transition-duration: 0.4s;
+}
+
+.field-button:hover{
+opacity:0.8;
+}
+.field-button:active{
+opacity:1;
+}
+
+.loader{
+    position:relative;
+    width:100px;
+    height:100px;
+    background-color:transparent;
+
+    
+}
+
+.loader-dim{
+    position: fixed;
+    background-color: black;
+    opacity: 0.2;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    
+
+}
+
+
+.form-group i{
+    position:absolute;
+    top:32px;
+    right:12px;
+    font-size: 20px;
+    font-weight: 600;
+    visibility: hidden;
+    
+}
+
+small{
+    visibility: hidden;
+    font-family: Poppins;
+    color: #ff4336;
+}
+
+.form-group.success input{
+    border-color: #19B269;
+}
+.form-group.success i.fa-check-circle{
+    color: #19B269;
+    visibility: visible;
+}
+
+.form-group.error input{
+    border-color :#ff4336;
+
+}
+
+.form-group.error i.fa-exclamation-circle{
+    color: #ff4336;
+    visibility: visible;
+}
+
+.form-group.error small{
+    visibility: visible;
+}
+
+.loading{
+    position:fixed;
+    display :none;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    
+}
+
+@keyframes animateBg{
+    0%
+    {
+        transform: scale(1);
+    }
+
+    100%
+    {
+        transform: scale(0);
+    }
+}
+
+.loader span{
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    
+    transform: rotate(calc(18deg * var(--i)))
+    
+}
+
+.loader span::before{
+    content:'';
+    position: absolute;
+    top:0;
+    left:0;
+    width:15px;
+    height:15px;
+    border-radius: 50%;
+    background:#19B269;
+    box-shadow:0 0 10px #19B269,
+    ;
+    transform:scale(0);
+    animation: animateBg 2s linear infinite;
+    animation-delay: calc(0.1s * var(--i))
+}
