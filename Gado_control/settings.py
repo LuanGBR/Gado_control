@@ -83,6 +83,8 @@ CORS_ORIGIN_WHITELIST = (
     u'http://localhost:8888',
     u'http://127.0.0.1:8000',
     u'http://localhost:3000',
+    u'https://gado-control.herokuapp.com',
+    u'https://gado-control.herokuapp.com/'
 )
 
 DATABASES = {
