@@ -586,4 +586,4 @@ def Dar_baixa(request,pk):
 def get_usuario(request):
     user = request.user
     resposta = {"username": str(user), "cargo":userprofile.objects.get(user = user).cargo}
-    return HttpResponse(json.loads(resposta,indent=4),content_type="application/json")
+    return HttpResponse(json.dumps(resposta,indent=4),content_type="application/json")
