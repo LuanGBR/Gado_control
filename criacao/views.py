@@ -6,6 +6,8 @@ from django.template import RequestContext, context
 from django.views.generic.edit import CreateView
 from criacao.forms import CabecagadoCreateForm, CriaCreateForm, PesosCreateForm, VacinasCreateForm, TransacaoCreateForm, CabecagadoEditForm
 
+from django.contrib.auth.forms import UserCreationForm
+
 from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas, userprofile
 
 from django.contrib.auth.decorators import login_required
@@ -128,6 +130,19 @@ def DetailView(request, pk):
 
         resposta_json = json.dumps(context,indent=4)
         return HttpResponse(resposta_json,content_type='aplication/json')
+
+def CreateUser(request):
+    if request.method == "GET":
+        form = UserCreationForm()
+        context = {'form': form}
+
+        return render(request, 'cadastro.html', context)
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(f"/login")
 
 
 def TransacaoEdit(request,pk):
