@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from criacao.models import boi, brinco, cabecagado, cria, ficha_medica, matriz, vacinas, transacao, cabeca_transacionada
+from criacao.models import boi, brinco, cabecagado, cria, ficha_medica, matriz, userprofile, vacinas, transacao, cabeca_transacionada
 
 
 
@@ -15,3 +15,4 @@ admin.site.register(boi)
 admin.site.register(brinco)
 admin.site.register(transacao)
 admin.site.register(cabeca_transacionada)
+admin.site.register(userprofile)

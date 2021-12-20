@@ -1,12 +1,12 @@
 from django.core import validators
-from django.http.response import HttpResponse, HttpResponseNotFound
+from django.http.response import HttpResponse, HttpResponseNotFound, HttpResponseNotAllowed
 from django.shortcuts import redirect, render
 from django.contrib.auth import get_user,authenticate,login
 from django.template import RequestContext, context
 from django.views.generic.edit import CreateView
 from criacao.forms import CabecagadoCreateForm, CriaCreateForm, PesosCreateForm, VacinasCreateForm, TransacaoCreateForm, CabecagadoEditForm
 
-from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas
+from criacao.models import boi, cabeca_transacionada, cabecagado, cria, matriz, transacao,brinco, ficha_medica, vacinas, userprofile
 
 from django.contrib.auth.decorators import login_required
 
@@ -19,6 +19,8 @@ import json
 
 
 def DetailView(request, pk):
+    if not request.user.is_authenticated:
+        return redirect(f"/login")
     tipo = cabecagado.objects.get(id=pk).tipo
     identificacao = cabecagado.__str__(cabecagado.objects.get(id=pk))
     vacinas_list = []
@@ -130,6 +132,8 @@ def DetailView(request, pk):
 
 def TransacaoEdit(request,pk):
     if request.user.is_authenticated:
+        if not userprofile.objects.get(user = request.user).cargo == "Dono":
+            return HttpResponseNotAllowed("")
         if request.method == "GET":
             context = {'id':pk}
             context['form'] = TransacaoCreateForm()
@@ -151,30 +155,28 @@ def TransacaoEdit(request,pk):
                 array_cabecas[i].transacao_id = pk
                 array_cabecas[i].cabecagado_id = cabecagado.objects.get(id=int(cabecas_transacionadas[i])).id
                 array_cabecas[i].save()
-            return redirect(f"/transacao/{t.id}/view")
+            return redirect(f"/transactions/{t.id}")
     else:
         return redirect(f"/login")
 
 
 def TransacaoCreate(request):
     if request.user.is_authenticated:
-        if request.method == "GET":
-            context = {}
-            context['form'] = TransacaoCreateForm()
-            return render(request, "transacoesCreate.html",context)
+        if not userprofile.objects.get(user = request.user).cargo == "Dono":
+            return HttpResponseNotAllowed("")
         if request.method =="POST":
+            print(request.body)
             t = transacao()
-            stringTransacao = request.POST.get('gados')
-            gados_compra = str(stringTransacao).split('\r\n')
-            array_cabecas = [cabeca_transacionada() for i in range(len(gados_compra))]
-            t.valor = request.POST.get('valor')
-            t.envolvido = request.POST.get('envolvido')
-            t.data = request.POST.get('data')
-            t.tipo = request.POST.get('tipo')
+            TransacaoInfo = json.loads(request.body.decode('utf-8'))
+            t.valor = TransacaoInfo['valor']
+            t.envolvido = TransacaoInfo['envolvido']
+            t.data = TransacaoInfo['data']
+            t.tipo = TransacaoInfo['tipo']
             t.save()
             if t.tipo == "Compra":
-                i = 0
-                for c in gados_compra:
+                novas_cabecas = TransacaoInfo["novas_cabecas"].split(";")
+                for c in novas_cabecas:
+                    print(c)
                     atributos = c.split(',') #ordem: n_etiqueta, nascimento, sexo, tipo, brinco_id
                     gado = cabecagado()
                     gado.n_etiqueta = str(atributos[0])
@@ -189,29 +191,30 @@ def TransacaoCreate(request):
                     gado.brinco_id = int(atributos[4])
                     gado.author_id = get_user(request).id
                     gado.save()
-                    array_cabecas[i].transacao_id = t.id
-                    array_cabecas[i].cabecagado_id = gado.id
-                    array_cabecas[i].save()
-                    i+=1
+                    line = cabeca_transacionada()
+                    line.transacao = t
+                    line.cabecagado = gado
+                    line.save()
                      #   n_etiqueta, nascimento, sexo, tipo, brinco_id
             elif t.tipo == "Venda":
-                i = 0
-                for v in gados_compra:
-                    identificacao = v.split('/') #n_etiqueta/n_brinco
-                    gado = cabecagado.objects.get(n_etiqueta = str(identificacao[0]),brinco_id = str(identificacao[1]))
+                id_list = TransacaoInfo["id_list"]
+                for v in id_list:
+                    gado = cabecagado.objects.get(id = v)
                     gado.vendido = 1
                     gado.save()
-                    array_cabecas[i].transacao_id = t.id
-                    array_cabecas[i].cabecagado_id = gado.id
-                    array_cabecas[i].save()
-                    i+=1
-            return redirect(f"/transacao/{t.id}/view")
+                    line = cabeca_transacionada()
+                    line.transacao = t
+                    line.cabecagado = gado
+                    line.save()
+            return redirect(f"/transaction/{t.id}")
     else:
         return redirect(f"/login")
 
 
 def TransacaoList(request):
     if request.user.is_authenticated:
+        if not userprofile.objects.get(user = request.user).cargo == "Dono":
+            return HttpResponseNotAllowed("")
         transacoes = transacao.objects.order_by("data")
         descricoes = []
         for t in transacoes:
@@ -281,10 +284,10 @@ def LandView(request):
 
 
 def HomeView(request):
+
     if request.method =="GET":
-        # user = get_user()
-        # if user.is_anonymous:
-        #     return redirect("login")
+        if not request.user.is_authenticated:
+                        return redirect(f"/login")
         transacoes = transacao.objects.order_by("data")[:5]
         descricoes = []
         for t in transacoes:
@@ -335,6 +338,9 @@ def HomeView(request):
 
 
 def CabecaListView(request):
+        if not request.user.is_authenticated:
+            print(request.user)
+            return redirect(f"/login")
         if request.method == "GET":
             boi_checked = False
             matriz_checked = False
@@ -407,6 +413,8 @@ def CabecaListView(request):
 
 
 def Criar_cabeça(request):
+        if not request.user.is_authenticated:
+            return redirect(f"/login")
         if request.method=="GET":
             brincos = []
             matrizes = []
@@ -460,9 +468,11 @@ def Criar_cabeça(request):
                 obj.cabecagado = cabeca
                 obj.matriz = matriz.objects.get(id=data["matriz"])
             obj.save()
-            return redirect(f"/cabeca/{cabeca.id}/view")
+            return redirect(f"/cattles/{cabeca.id}")
 
 def EditView(request,pk):
+    if not request.user.is_authenticated:
+        return redirect(f"/login")
     if request.method=="GET":
         cabeca = cabecagado.objects.get(id=pk)
         ficha = ficha_medica.objects.get(cabecagado=cabeca)
@@ -479,7 +489,7 @@ def EditView(request,pk):
                         "morte":cabeca.morte.strftime("%Y-%m-%d") if cabeca.morte else None,
                         "causa_mortis":cabeca.causa_mortis
                         },
-                    "ficha medica": {
+                    "ficha_medica": {
                         "pesos_timeseries": ficha.pesos_timeseries
                         },
                     "vacinas": {
@@ -504,8 +514,7 @@ def EditView(request,pk):
         data_nascimento = data["nascimento"]
         cabeca.nascimento = data_nascimento
         cabeca.observacoes = data["observacoes"]
-        if s == "3":
-            cabeca.sexo = data["sexo"]
+
         cabeca.author = get_user(request)
         cabeca.save()
         ficha = ficha_medica.objects.get(cabecagado_id=pk)
@@ -522,10 +531,7 @@ def EditView(request,pk):
         vac.ibr_bvd = bool(data["ibr_bvd"])
         vac.save()
 
-        if s =="3":
-            obj = cria.objects.get(cabecagado_id=pk)
-            obj.matriz = matriz.objects.get(id=data["matriz"])
-            obj.save()
+
         return redirect(f"/cabeca/{cabeca.id}/view")
 
 def get_brincosView(request):
@@ -538,7 +544,7 @@ def get_cabecasAtivasView(request):
         cabecas = []
         for i in qs:
             cabecas.append({"id": i.id,"tag":str(i),"tipo":i.tipo,"cor_nome":i.brinco.cor_nome})
-            
+
         return HttpResponse(json.dumps({"cabecas": cabecas}) , content_type="application/json")
 
 def Create_brincos(request):
@@ -547,4 +553,22 @@ def Create_brincos(request):
         new_brinco = brinco()
         new_brinco.cor = data["cor_hex"]
         new_brinco.cor_nome = data["cor_nome"]
+        new_brinco.save()
+        return HttpResponse('')
 
+def Dar_baixa(request,pk):
+    if not request.user.is_authenticated:
+            return redirect(f"/login")
+    if request.method=="POST":
+        cabeca = cabecagado.objects.get(id=pk)
+        data = json.loads(request.body.decode("utf-8"))
+        cabeca.esta_vivo = 0
+        cabeca.morte = data["data_morte"]
+        cabeca.causa_mortis = data["causa_mortis"]
+        cabeca.save()
+        return HttpResponse("")
+
+def get_usuario(request):
+    user = request.user
+    resposta = {"username": str(user), "cargo":userprofile.objects.get(user = user).cargo}
+    return HttpResponse(json.loads(resposta,indent=4),content_type="application/json")
